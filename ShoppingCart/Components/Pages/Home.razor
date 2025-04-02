@@ -1,0 +1,181 @@
+﻿@page "/home"
+@layout EmptyLayout
+@using ShoppingCart.Components.Shared
+@inject NavigationManager Navigation
+@inherits LayoutComponentBase
+@rendermode InteractiveServer
+
+
+
+
+<PageTitle>ShoppingCart</PageTitle> 
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light p-3">
+    <div class="container-fluid">
+        <!-- Brand Name -->
+        <a class="navbar-brand fw-bold" ><i class="bi bi-cart4"></i>ShoppingCart</a>
+
+        <!-- Search Bar -->
+        <form class="d-flex ms-auto me-3" @onsubmit="Search">
+            <input class="form-control me-2" type="search" placeholder="Search products..." bind-value="@SearchQuery">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+
+        <!-- Cart -->
+
+        <a type="button" class="btn btn-outline-primary position-relative" href="/cart">
+                <i class="bi bi-cart"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @CartItemCount
+                </span>
+            </a>
+       
+
+        <!--About Us -->
+        <a class="btn btn-outline-secondary ms-2" href="/about">About Us</a>
+
+        <!-- Profile--> 
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" style="margin-left: 10px;" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i> Profile
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                <li class="dropdown-item">
+                    <strong>Welcome, @UserName</strong>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button class="dropdown-item" @onclick="Setting" >Setting</button>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <LogoutComponent />
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+<!--middle Container-->
+<div class = "hero-section">
+    <img src="images/clothes.jpg" alt="hero" class="hero-image">
+    <div class="hero-overlay">
+        <h2 class="text-danger">ShoppingCart Sale</h2>
+        <h1 class="fw-bold">Minimal Fashion Style</h1>
+        <p>Exclusive discounts on the latest fashion trends.</p>
+        <a href="/home" class="btn btn-dark btn-lg">Shop Now</a>
+    </div>
+</div> 
+
+<!--Product Section-->
+<div class="row" style="margin-top:10px">
+
+    <div class="col-md-4 mb-4" product>
+        <div class="card shadow-sm">
+            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
+            <div class="card-body text-center">
+                <h5 class="card-title">Shirt</h5>
+                <p class="card-text">Price:$4</p>
+                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4" product>
+        <div class="card shadow-sm">
+            <img src="/images/product2.jpg" class="card-img-top" alt="Product1-Img">
+            <div class="card-body text-center">
+                <h5 class="card-title">Shirt</h5>
+                <p class="card-text">Price:$4</p>
+                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4" product>
+        <div class="card shadow-sm">
+            <img src="/images/product3.jpg" class="card-img-top" alt="Product1-Img">
+            <div class="card-body text-center">
+                <h5 class="card-title">Shirt</h5>
+                <p class="card-text">Price:$4</p>
+                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4" product>
+        <div class="card shadow-sm">
+            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
+            <div class="card-body text-center">
+                <h5 class="card-title">Shirt</h5>
+                <p class="card-text">Price:$4</p>
+                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4" product>
+        <div class="card shadow-sm">
+            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
+            <div class="card-body text-center">
+                <h5 class="card-title">Shirt</h5>
+                <p class="card-text">Price:$4</p>
+                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
+            </div>
+        </div> 
+    </div>
+    <div class="col-md-4 mb-4" product>
+        <div class="card shadow-sm">
+            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
+            <div class="card-body text-center">
+                <h5 class="card-title">Shirt</h5>
+                <p class="card-text">Price:$4</p>
+                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Footer-->
+<FooterComponent />
+
+
+
+
+@code {
+    private string UserName = "Preet";
+    private string SearchQuery { get; set; } = "";
+    private int CartItemCount { get; set; } = 0;
+
+    private void Search()
+    {
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            Navigation.NavigateTo($"/search?query={SearchQuery}");
+        }
+    }
+
+    private void GoToCart()
+    {
+        Console.WriteLine("GoToCart clicked!"); // Debugging
+
+        Navigation.NavigateTo("/cart");
+
+    }
+    private async Task Logout()
+    {
+        // Implement your logout logic
+        Navigation.NavigateTo("/auth/login", forceLoad: true);
+    }
+    private async Task Setting()
+    {
+        // Implement your logout logic
+        Navigation.NavigateTo("/setting", forceLoad: true);
+    }
+    private void AddToCart()
+    {
+        Console.WriteLine(" added to cart!");
+        CartItemCount++;
+    }
+}
