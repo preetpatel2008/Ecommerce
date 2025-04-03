@@ -12,9 +12,9 @@ namespace Repository.Services.Library
 {
     public class SecurityRepositoryService : ISecurityRepositoryService
     {
-        private readonly AddDbContext context;
+        private readonly AppDbContext context;
 
-        public SecurityRepositoryService(AddDbContext context)
+        public SecurityRepositoryService(AppDbContext context)
         {
             this.context = context;
         }

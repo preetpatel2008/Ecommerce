@@ -10,9 +10,8 @@ namespace Repository.Services.Library
 {
     public class UserRepositoryService : IUserRepositoryService
     {
-        private readonly AddDbContext context;
-
-        public UserRepositoryService(AddDbContext context)
+        private readonly AppDbContext context;
+        public UserRepositoryService(AppDbContext context)
         {
             this.context = context;
         }

@@ -21,7 +21,7 @@ namespace Repository.Services.Extensions
             //services.AddScoped<AppDbContext>(options => new AppDbContext(configuration.GetSection("Logging").GetConnectionString("DefaultConnection")));
 
            // services.AddDbContext<AddDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            services.AddScoped<AddDbContext>(options => new AddDbContext(configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<AppDbContext>(options => new AppDbContext(configuration.GetConnectionString("DefaultConnection")));
 
             return services;
         }
