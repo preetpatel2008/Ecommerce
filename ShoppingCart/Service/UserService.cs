@@ -15,9 +15,9 @@ namespace ShoppingCart.Service
 {
     public class UserService
     {
-        private readonly AddDbContext _context;
+        private readonly AppDbContext _context;
         private readonly IUserRepositoryService _userRepositoryService;
-        public UserService(AddDbContext context, IUserRepositoryService UserRepositoryService)
+        public UserService(AppDbContext context, IUserRepositoryService UserRepositoryService)
         {
             _context = context;
             _userRepositoryService = UserRepositoryService;

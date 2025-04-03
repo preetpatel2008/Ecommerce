@@ -5,15 +5,15 @@ using System;
 
 namespace Repository.Services.Context
 {
-    public class AddDbContext : DbContext
+    public class AppDbContext : DbContext
     {
     
-        public AddDbContext(string ConnectionStringName) : base(ConnectionStringName)
+        public AppDbContext(string ConnectionStringName) : base(ConnectionStringName)
         {   
         }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            Database.SetInitializer<AddDbContext>(null);
+            Database.SetInitializer<AppDbContext>(null);
             base.OnModelCreating(modelBuilder);
         }
 
