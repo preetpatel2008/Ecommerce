@@ -1,10 +1,11 @@
-﻿@page "/home"
+﻿@page "/"
+@page "/home"
 @layout EmptyLayout
 @using ShoppingCart.Components.Shared
 @inject NavigationManager Navigation
 @inherits LayoutComponentBase
+@inject AuthenticationAppService AuthService
 @rendermode InteractiveServer
-
 
 
 
@@ -51,6 +52,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <LogoutComponent />
+
                 </li>
             </ul>
         </div>
