@@ -10,8 +10,8 @@ namespace Repository.Services.Infrastructure
     {
         public enum EntityType : long
         {
-            SuperAdmin = 1,
-            Admin = 2,
+            SuperAdmin = 2,
+            Admin = 1,
             User = 3
         }
     }

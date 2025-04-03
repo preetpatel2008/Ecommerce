@@ -57,7 +57,7 @@ namespace ShoppingCart.Service
             public const string AuthScheme = "Cookies"; // Or use "Bearer" for JWT
         }
 
-        [IgnoreAntiforgeryToken]
+        [IgnoreAntiforgeryToken] 
         public async Task<string> Login(AuthModel login)
         {
             try
@@ -96,15 +96,15 @@ namespace ShoppingCart.Service
                                     new Claim(type: "Email", value: objAuthentication.Email.ToString())
                                 };
 
-                                //string userRole = objAuthentication.EntityTypeID switch
-                                //{
-                                //    1 => EntityType.Admin.ToString(),
-                                //    3 => EntityType.User.ToString(),
-                                //    //4 => EntityType.Student.ToString(),
+                                string userRole = objAuthentication.EntityTypeID switch
+                                {
+                                    1 => EntityType.Admin.ToString(),
+                                    3 => EntityType.User.ToString(),
+                                    //4 => EntityType.Student.ToString(),
 
-                                //};
+                                };
 
-                                //claims.Add(new Claim(ClaimTypes.Role, userRole));
+                                claims.Add(new Claim(ClaimTypes.Role, userRole));
                                 /* Add ploicies 
                                  get policy data from table for particuler user and set this policy in claims using for/foreach loop
                                  */

@@ -48,45 +48,6 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IUserRepositoryService, UserRepositoryService>();
 
 
-// Identity Service 
-//builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-//    .AddDefaultTokenProviders();
-
-
-
-// ✅ Authentication Setup
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(options =>
-//    {
-//        options.Cookie.Name = "auth-Token";
-//        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-//        options.Cookie.SameSite = SameSiteMode.Lax;
-//        options.LoginPath = "/auth/login";
-//        options.LogoutPath = "/auth/logout";
-//        options.AccessDeniedPath = "/auth/access-denied";
-//    });
-
-
-
-
-
-
-
-//// Add Identity services
-//builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-//{
-//    options.SignIn.RequireConfirmedAccount = false;
-//})
-//    .AddEntityFrameworkStores<AddDbContext>();
-
-
-// Add Razor Pages & Blazor Server Service
-
-
-//builder.Services.AddScoped<UserService>();
-//builder.Services.AddScoped<UserManager<IdentityUser>>();
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
