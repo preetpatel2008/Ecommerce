@@ -67,7 +67,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapControllers();
-app.MapBlazorHub();
+//app.MapBlazorHub();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

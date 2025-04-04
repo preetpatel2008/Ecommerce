@@ -1,19 +1,34 @@
-﻿@inject NavigationManager Navigation
+﻿@* @inject NavigationManager Navigation *@
+@* @rendermode InteractiveServer *@
+
+@* <div class="top-row px-4"> *@
+@*     <EditForm Model="Model" OnValidSubmit="@Logout" FormName="logout"> *@
+@*         <button class="btn btn-outline-primary">Logout</button> *@
+@*         </EditForm> *@
+    
+@* </div> *@
+
+@* @code { *@
+@*     private LoginModel Model = new(); *@
+@*     private void Logout() *@
+@*     { *@
+
+@*         Console.WriteLine("Logout button clicked"); *@
+@*         Navigation.NavigateTo("/auth/logout", forceLoad: true); *@
+@*     } *@
+@* }  *@
+
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
 <div class="top-row px-4">
-    <EditForm Model="Model" OnValidSubmit="@Logout" FormName="logout">
-        <button class="btn btn-outline-primary">Logout</button>
-        </EditForm>
-    
+    <button class="dropdown-item" @onclick="Logout" title="Logout"> <i class="bi bi-box-arrow-left tex" style="margin-right:10px"></i>Logout</button>
 </div>
 
 @code {
-    private LoginModel Model = new();
     private void Logout()
     {
-
         Console.WriteLine("Logout button clicked");
         Navigation.NavigateTo("/auth/logout", forceLoad: true);
     }
-} 
+}         

@@ -9,8 +9,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @rendermode InteractiveServer
-
-
+@inject IJSRuntime JS
 
 <PageTitle>ShoppingCart</PageTitle> 
 
@@ -27,12 +26,12 @@
 
         <!-- Cart -->
 
-        <a type="button" class="btn btn-outline-primary position-relative" href="/cart">
+        <button type="button" class="btn btn-outline-primary position-relative" @onclick="GoToCart">
             <i class="bi bi-cart"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 @CartItemCount
             </span>
-        </a>
+        </button>
 
 
         <!--About Us -->
@@ -41,7 +40,6 @@
         <!-- Profile--> 
         @if (IsUserLoggedIn)
         {
-
             <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" style="margin-left: 10px;" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle"></i> Profile
@@ -57,11 +55,11 @@
 
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                           <LogoutComponent />
+                        <LogoutComponent />
                     </li>
                 </ul>
             </div>
-        }
+        } 
         else
         {
             <a class="btn btn-outline-primary ms-2" href="/auth/login">Login</a>
@@ -149,42 +147,54 @@
 </div>
 
 <!--Footer-->
-<FooterComponent />
+<FooterComponent /> 
 
 
 @code {
-   
+
     private string UserName = "";
     private string SearchQuery { get; set; } = "";
     private int CartItemCount { get; set; } = 0;
     private bool IsUserLoggedIn { get; set; } = false;
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
-
+    [Inject] public NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace this with actual authentication check
-        IsUserLoggedIn = await CheckUserLoginStatus();
+        try
+        {
+            IsUserLoggedIn = await CheckUserLoginStatus();
+            // Console.WriteLine($"Logged in user: {UserName}"); // check username in console 
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Initialization error: " + ex.Message);
+        }
     }
 
     private async Task<bool> CheckUserLoginStatus()
     {
-        
-        var authState = await authenticationStateTask;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
-            return IsUserLoggedIn = true;
-           // UserName = user.Identity.Name ?? "User";
+            IsUserLoggedIn = true;
+            // UserName = user.Identity.Name ?? "User";
             UserName = user.FindFirst("FirstName")?.Value
                         ?? user.FindFirst(ClaimTypes.Email)?.Value
                         ?? "User";// Fetch the username
+            return true;
+
+
         }
         else
         {
-           return IsUserLoggedIn = false;
+            IsUserLoggedIn = false;
+            return false;
         } // Change this to true if user is authenticated
     }
 
@@ -197,21 +207,27 @@
         }
     }
 
-    private void GoToCart()
+    private async Task GoToCart()
     {
-        Console.WriteLine("GoToCart clicked!"); // Debugging
+        
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        Navigation.NavigateTo("/cart");
-
+        if (user.Identity.IsAuthenticated)
+        {
+            // Navigate to cart page
+            NavigationManager.NavigateTo("/cart");
+        }
+        else
+        {
+            // Show alert
+            await JS.InvokeVoidAsync("alert", "Please login to use the cart.");
+        }
     }
-    private async Task Logout()
-    {
-        // Implement your logout logic
-        Navigation.NavigateTo("/auth/login", forceLoad: true);
-    }
+    
     private async Task Setting()
     {
-        // Implement your logout logic
+        
         Navigation.NavigateTo("/setting", forceLoad: true);
     }
     private void AddToCart()
@@ -219,4 +235,5 @@
         Console.WriteLine(" added to cart!");
         CartItemCount++;
     }
+
 }

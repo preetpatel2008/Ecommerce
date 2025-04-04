@@ -102,7 +102,7 @@ namespace ShoppingCart.Service
                                     3 => EntityType.User.ToString(),
                                     //4 => EntityType.Student.ToString(),
 
-                                };
+                                };      
 
                                 claims.Add(new Claim(ClaimTypes.Role, userRole));
                                 /* Add ploicies 
