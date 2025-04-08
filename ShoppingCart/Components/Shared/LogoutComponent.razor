@@ -1,16 +1,14 @@
 ﻿@inject NavigationManager Navigation
 @rendermode InteractiveServer
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <div class="top-row px-4">
-    <button @onclick="Logout" class="btn btn-link">Logout</button>
+    <button class="dropdown-item" @onclick="Logout" title="Logout"> <i class="bi bi-box-arrow-left tex" style="margin-right:10px"></i>Logout</button>
 </div>
 
 @code {
     private void Logout()
     {
-
         Console.WriteLine("Logout button clicked");
         Navigation.NavigateTo("/auth/logout", forceLoad: true);
     }
-} 
+}         

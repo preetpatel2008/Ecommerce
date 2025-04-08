@@ -1,14 +1,16 @@
 ﻿@page "/"
 @page "/home"
 @layout EmptyLayout
+@using ShoppingCart.Components
 @using ShoppingCart.Components.Shared
 @inject NavigationManager Navigation
 @inherits LayoutComponentBase
-@inject AuthenticationAppService AuthService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @rendermode InteractiveServer
-
-
-
+@inject IJSRuntime JS
+    
 <PageTitle>ShoppingCart</PageTitle> 
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light p-3">
@@ -24,39 +26,44 @@
 
         <!-- Cart -->
 
-        <a type="button" class="btn btn-outline-primary position-relative" href="/cart">
-                <i class="bi bi-cart"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    @CartItemCount
-                </span>
-            </a>
-       
+        <button type="button" class="btn btn-outline-primary position-relative" @onclick="GoToCart">
+            <i class="bi bi-cart"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @CartItemCount
+            </span>
+        </button>
+
 
         <!--About Us -->
         <a class="btn btn-outline-secondary ms-2" href="/about">About Us</a>
 
         <!-- Profile--> 
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle" style="margin-left: 10px;" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-person-circle"></i> Profile
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <li class="dropdown-item">
-                    <strong>Welcome, @UserName</strong>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <button class="dropdown-item" @onclick="Setting" >Setting</button>
-                </li>
+        @if (IsUserLoggedIn)
+        {
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" style="margin-left: 10px;" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> Profile
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                    <li class="dropdown-item">
+                        <strong>Welcome, @UserName</strong>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <button class="dropdown-item" @onclick="Setting" >Setting</button>
+                    </li>
 
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <LogoutComponent />
-
-                </li>
-            </ul>
-        </div>
-
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <LogoutComponent />
+                    </li>
+                </ul>
+            </div>
+        } 
+        else
+        {
+            <a class="btn btn-outline-primary ms-2" href="/auth/login">Login</a>
+        }
     </div>
 </nav>
 
@@ -140,15 +147,57 @@
 </div>
 
 <!--Footer-->
-<FooterComponent />
-
-
+<FooterComponent /> 
 
 
 @code {
-    private string UserName = "Preet";
+
+    private string UserName = "";
     private string SearchQuery { get; set; } = "";
     private int CartItemCount { get; set; } = 0;
+    private bool IsUserLoggedIn { get; set; } = false;
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IsUserLoggedIn = await CheckUserLoginStatus();
+            // Console.WriteLine($"Logged in user: {UserName}"); // check username in console 
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Initialization error: " + ex.Message);
+        }
+    }
+
+    private async Task<bool> CheckUserLoginStatus()
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            IsUserLoggedIn = true;
+            // UserName = user.Identity.Name ?? "User";
+            UserName = user.FindFirst("FirstName")?.Value
+                        ?? user.FindFirst(ClaimTypes.Email)?.Value
+                        ?? "User";// Fetch the username
+            return true;
+
+
+        }
+        else
+        {
+            IsUserLoggedIn = false;
+            return false;
+        } // Change this to true if user is authenticated
+    }
+
 
     private void Search()
     {
@@ -158,21 +207,27 @@
         }
     }
 
-    private void GoToCart()
+    private async Task GoToCart()
     {
-        Console.WriteLine("GoToCart clicked!"); // Debugging
+        
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        Navigation.NavigateTo("/cart");
-
+        if (user.Identity.IsAuthenticated)
+        {
+            // Navigate to cart page
+            NavigationManager.NavigateTo("/cart");
+        }
+        else
+        {
+            // Show alert
+            await JS.InvokeVoidAsync("alert", "Please login to use the cart.");
+        }
     }
-    private async Task Logout()
-    {
-        // Implement your logout logic
-        Navigation.NavigateTo("/auth/login", forceLoad: true);
-    }
+    
     private async Task Setting()
     {
-        // Implement your logout logic
+        
         Navigation.NavigateTo("/setting", forceLoad: true);
     }
     private void AddToCart()
@@ -180,4 +235,5 @@
         Console.WriteLine(" added to cart!");
         CartItemCount++;
     }
+
 }

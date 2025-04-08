@@ -10,7 +10,6 @@
 @inject UserService UserService
 
 
-
 <div class="container">
 <div class="main-container">
 <div class="login-container">
@@ -18,10 +17,10 @@
 
     <EditForm Model="Model" OnValidSubmit="@HandleLogin" FormName="@LoginForm">
     <DataAnnotationsValidator />
-                @if (!string.IsNullOrEmpty(ErrorMessage))
-                {
-                    <p class="text-danger">@ErrorMessage</p>
-                }
+       @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+              <p class="text-danger">@ErrorMessage</p>
+            }
 
     
     <div class="form-group">

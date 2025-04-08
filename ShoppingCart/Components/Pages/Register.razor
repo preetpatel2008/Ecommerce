@@ -74,12 +74,12 @@
 @code {
 
     [SupplyParameterFromForm]
-    private RegisterModel registerModel { get; set; } = new();
+    private RegisterModel registerModel { get; set; } = new RegisterModel();
     private string ErrorMessage = "";
     private string SuccessMessage = "";
 
     private const string RegisterForm = "Register-form";
-
+    [Inject] public NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -123,7 +123,7 @@
         // }
       
         await UserService.AddUpdateUser(registerModel);
-        SuccessMessage = "Registered successfully. Please login.";
+        await JS.InvokeVoidAsync("alert", "Registered successfully. Please login.");
         StateHasChanged();
         await Task.Delay(1000); // Wait for 1 seconds before redirecting
         Navigation.NavigateTo("/auth/login");
