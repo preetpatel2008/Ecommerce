@@ -47,6 +47,9 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IUserRepositoryService, UserRepositoryService>();
 
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<IProductRepositoryService, ProductRepositoryService>();
+
 
 var app = builder.Build();
 

@@ -12,6 +12,7 @@
 
 	<ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
@@ -29,8 +30,11 @@
     <ProjectReference Include="..\Entity\Entity.csproj" />
     <ProjectReference Include="..\Repository.Services\Repository.Services.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Folder Include="Controllers\" />
   </ItemGroup>
 
