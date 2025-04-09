@@ -138,7 +138,7 @@ namespace ShoppingCart.Service
 
                                 //_httpContextAccessor.HttpContext.Response.Cookies.Append(cookieName, cookieValue);
 
-                                return string.Empty;
+                                return loginUser.EntityTypeID.ToString();
                             }
                             else
                             {

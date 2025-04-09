@@ -87,7 +87,7 @@ app.MapGet("/auth/logout", async (HttpContext httpContext) =>
     await httpContext.SignOutAsync(Constants.AuthScheme);
 
     // Redirect to the login page
-    httpContext.Response.Redirect("/auth/login");
+    httpContext.Response.Redirect("/home");
 });
 
 app.Run();
