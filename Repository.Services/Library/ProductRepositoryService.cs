@@ -60,10 +60,6 @@ namespace Repository.Services.Library
                 throw;
             }
         }
-        //public Task<List<ProductModel>> GetAllProductsAsync()
-        //{
-        //    throw new NotImplementedException();
-        //}
         public async Task<List<ProductModel>> Selproduct()
         {
             return await context.Database.SqlQuery<ProductModel>("EXEC [sel_Product]").ToListAsync();

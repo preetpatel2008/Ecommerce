@@ -1,8 +1,80 @@
 ﻿@page "/cart"
+@inject CartService _cartService
 
+<h3>Your Cart</h3>
 
-<h3>Cart</h3>
+@if (lstcartModel == null)
+{
+    <p>Loading...</p>
+}
+else if (lstcartModel.Count == 0)
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (CartModel objcart in lstcartModel)
+            {
+                <tr>
+                    <td><img src="@objcart.ImageUrl" width="60" /></td>
+                    <td>@objcart.ProductName</td>
+                    <td>
+                        <input type="number" min="1" value="@objcart.Quantity" @onchange="(e) => UpdateQuantity(objcart, int.Parse(e.Value.ToString()))" />
+                    </td>
+                    <td>₹@objcart.Price</td>
+                    <td>₹@(objcart.Price * objcart.Quantity)</td>
+                    <td>
+                        <button class="btn btn-success btn-sm" @onclick="() => BuyNow(objcart)">Buy Now</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => RemoveFromCart(objcart.CartId)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
 
+    private List<CartModel>? lstcartModel = new List<CartModel>();
+    protected override async Task OnInitializedAsync()
+    {
+        lstcartModel = await _cartService.GetAllitems();
+        await LoadCart();
+    }
+
+    private async Task LoadCart()
+    {
+        //var userId = /* fetch LoginMasterId from auth/session */
+        //lstcartModel = await _cartService.GetAllitems(userId); // You’ll create this
+    }
+
+    private async Task UpdateQuantity(CartModel item, int newQty)
+    {
+        item.Quantity = newQty;
+        await _cartService.AddUpdateCart(item); // Will update the quantity
+        await LoadCart();
+    }
+
+    private async Task RemoveFromCart(int cartId)
+    {
+        //await _cartService.DeleteCartItem(cartId); // You’ll create this method + SP
+        await LoadCart();
+    }
+
+    private async Task BuyNow(CartModel item)
+    {
+        // Redirect to checkout or call your order placement logic
+    }
 }

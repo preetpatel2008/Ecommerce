@@ -50,6 +50,9 @@ builder.Services.AddScoped<IUserRepositoryService, UserRepositoryService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<IProductRepositoryService, ProductRepositoryService>();
 
+builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<ICartRepositoryService, CartRepositoryService>();
+
 
 var app = builder.Build();
 

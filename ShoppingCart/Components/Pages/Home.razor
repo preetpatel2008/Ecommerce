@@ -6,11 +6,14 @@
 @inject NavigationManager Navigation
 @inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ProductService _productService
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @rendermode InteractiveServer
 @inject IJSRuntime JS
-    
+@inject CartService _cartService
+
+
 <PageTitle>ShoppingCart</PageTitle> 
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light p-3">
@@ -79,9 +82,28 @@
 </div> 
 
 <!--Product Section-->
-<div class="row" style="margin-top:10px">
+@if (lstproductModel == null)
+{
+    <p>Loading...</p>
+}
+else
+{ 
+    <div class="row" style="margin-top:10px">
 
-    <div class="col-md-4 mb-4" product>
+        @foreach (ProductModel objproduct in lstproductModel)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <img class="card-img-top" src="@objproduct.ImageUrl" alt="@objproduct.ProductName" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@objproduct.ProductName</h5>
+                        <p class="card-text">₹@objproduct.Price</p>
+                        <button class="btn btn-primary" id="btnAddtoCart" @onclick="() => AddToCart(objproduct)">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        } 
+        @*  <div class="col-md-4 mb-4" product>
         <div class="card shadow-sm">
             <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
             <div class="card-body text-center">
@@ -90,61 +112,11 @@
                 <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
             </div>
         </div>
-    </div>
+    </div> *@
 
-    <div class="col-md-4 mb-4" product>
-        <div class="card shadow-sm">
-            <img src="/images/product2.jpg" class="card-img-top" alt="Product1-Img">
-            <div class="card-body text-center">
-                <h5 class="card-title">Shirt</h5>
-                <p class="card-text">Price:$4</p>
-                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
-            </div>
-        </div>
-    </div>
 
-    <div class="col-md-4 mb-4" product>
-        <div class="card shadow-sm">
-            <img src="/images/product3.jpg" class="card-img-top" alt="Product1-Img">
-            <div class="card-body text-center">
-                <h5 class="card-title">Shirt</h5>
-                <p class="card-text">Price:$4</p>
-                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
-            </div>
-        </div>
     </div>
-    <div class="col-md-4 mb-4" product>
-        <div class="card shadow-sm">
-            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
-            <div class="card-body text-center">
-                <h5 class="card-title">Shirt</h5>
-                <p class="card-text">Price:$4</p>
-                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-4" product>
-        <div class="card shadow-sm">
-            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
-            <div class="card-body text-center">
-                <h5 class="card-title">Shirt</h5>
-                <p class="card-text">Price:$4</p>
-                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
-            </div>
-        </div> 
-    </div>
-    <div class="col-md-4 mb-4" product>
-        <div class="card shadow-sm">
-            <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
-            <div class="card-body text-center">
-                <h5 class="card-title">Shirt</h5>
-                <p class="card-text">Price:$4</p>
-                <button class="btn btn-primary" @onclick="() => AddToCart()">Add to Cart</button>
-            </div>
-        </div>
-    </div>
-</div>
+}
 
 <!--Footer-->
 <FooterComponent /> 
@@ -160,10 +132,14 @@
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
 
+    private List<ProductModel>? lstproductModel = new List<ProductModel>();
+    private CartModel objcartModel = new CartModel();
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            lstproductModel = await _productService.GetAllProducts();
             IsUserLoggedIn = await CheckUserLoginStatus();
             // Console.WriteLine($"Logged in user: {UserName}"); // check username in console 
 
@@ -209,13 +185,12 @@
 
     private async Task GoToCart()
     {
-        
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         if (user.Identity.IsAuthenticated)
         {
-            // Navigate to cart page
             NavigationManager.NavigateTo("/cart");
         }
         else
@@ -224,15 +199,36 @@
             await JS.InvokeVoidAsync("alert", "Please login to use the cart.");
         }
     }
-    
+
     private async Task Setting()
     {
-        
+
         Navigation.NavigateTo("/setting", forceLoad: true);
     }
-    private void AddToCart()
+
+    private int GetLoginMasterId(ClaimsPrincipal user)
     {
+        var claim = user.FindFirst("LoginMasterID");
+        return claim != null ? int.Parse(claim.Value) : 0;
+    }
+
+    private async Task AddToCart(ProductModel objproductModel)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        int userId = GetLoginMasterId(user);
+
+        // Example of getting UserId from claim
+        //var userId = int.Parse(user.FindFirst(c => c.Type == "LoginMasterId")?.Value ?? "0");
+        CartModel objcartModel = new CartModel();
+        objcartModel.UserId = userId;
+        objcartModel.ProductId = objproductModel.ProductId;
+        objcartModel.ProductName = objproductModel.ProductName;
+        objcartModel.Price = objproductModel.Price;
+        objcartModel.ImageUrl = objproductModel.ImageUrl;
+        objcartModel.Quantity = 1;
         Console.WriteLine(" added to cart!");
+        _cartService.AddUpdateCart(objcartModel);
         CartItemCount++;
     }
 
