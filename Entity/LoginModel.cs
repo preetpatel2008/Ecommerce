@@ -35,6 +35,8 @@ namespace Entity
 
         public bool IsDeleted { get; set; }
 
+        public string ErrorMessage { get; set; } = string.Empty;
+
     }
 
     public class AuthModel
@@ -43,6 +45,8 @@ namespace Entity
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
+
+        public long EntityTypeID { get; set; }
         public bool RememberMe { get; set; } = true;
     }
 }
