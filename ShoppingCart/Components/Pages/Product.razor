@@ -86,19 +86,22 @@
             fileError = "Please select a product image.";
             StateHasChanged();
             return;
-        }
+        } 
         // Save image locally
-        var uniqueFileName = $"{Guid.NewGuid()}_{uploadedFile.Name}";
+        var originalFileName = Path.GetFileName(uploadedFile.Name);
+        // var uniqueFileName = $"{Guid.NewGuid()}_{uploadedFile.Name}";
+        var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
         var uploadPath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images");
         Directory.CreateDirectory(uploadPath);
-        var filePath = Path.Combine(uploadPath, uniqueFileName);
+        var filePath = Path.Combine(uploadPath, originalFileName);
 
         await using var fs = new FileStream(filePath, FileMode.Create);
         await uploadedFile.OpenReadStream(15 * 1024 * 1024).CopyToAsync(fs);
 
-        productModel.ImageUrl = uniqueFileName ;
+        // productModel.ImageUrl = uniqueFileName ; 
+        productModel.ImageUrl = $"/images/{uniqueFileName}";
 
-        bool result = await _productService.AddUpdateProduct(productModel, null); // imageFile is not needed now
+        bool result = await _productService.AddUpdateProduct(productModel, null); 
 
         if (result)
         {
