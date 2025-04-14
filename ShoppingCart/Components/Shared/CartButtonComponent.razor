@@ -1,0 +1,33 @@
+﻿@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+
+<button type="button" class="btn btn-outline-primary position-relative" @onclick="GoToCart">
+    <i class="bi bi-cart"></i>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+         @CartItemCount 
+    </span>
+</button>
+
+@code {
+    private int CartItemCount { get; set; } = 0;
+    private async Task GoToCart()
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/cart");
+        }
+        else
+        {
+            // Show alert
+            await JS.InvokeVoidAsync("alert", "Please login to use the cart.");
+        }
+    }
+}

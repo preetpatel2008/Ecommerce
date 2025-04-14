@@ -88,12 +88,12 @@
             return;
         } 
         // Save image locally
-        var originalFileName = Path.GetFileName(uploadedFile.Name);
-        // var uniqueFileName = $"{Guid.NewGuid()}_{uploadedFile.Name}";
-        var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+        // var originalFileName = Path.GetFileName(uploadedFile.Name);
+         var uniqueFileName = $"{Guid.NewGuid()}_{uploadedFile.Name}";
+       
         var uploadPath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images");
         Directory.CreateDirectory(uploadPath);
-        var filePath = Path.Combine(uploadPath, originalFileName);
+        var filePath = Path.Combine(uploadPath, uniqueFileName);
 
         await using var fs = new FileStream(filePath, FileMode.Create);
         await uploadedFile.OpenReadStream(15 * 1024 * 1024).CopyToAsync(fs);

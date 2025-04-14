@@ -1,4 +1,5 @@
 ﻿using Entity;
+using Microsoft.Extensions.Logging;
 using Repository.Services.Context;
 using Repository.Services.Contract;
 using Repository.Services.Infrastructure;
@@ -20,7 +21,7 @@ namespace Repository.Services.Library
         {
             this.context = context;
         }
-        public long AddUpdateCart(CartModel objcartModel)
+        public long AddUpdateCartTable(CartModel objcartModel)
         {
             try
             {
@@ -44,12 +45,16 @@ namespace Repository.Services.Library
             {
                 throw;
             }
-
+                
         }
-        public async Task<List<CartModel>> Selcart()
+        public async Task<List<CartModel>> Selcart(int userId)
         {
-            return await context.Database.SqlQuery<CartModel>("EXEC [sel_Cart]").ToListAsync();
+            return await context.Database.SqlQuery<CartModel>("EXEC [sel_Cart] @UserId = {0}",userId).ToListAsync();
+        }
+        public long RemoveCart(int CartID)
+        {
+            return context.Database.ExecuteSqlCommand("EXEC [del_Cart] @CartID={0}", CartID);
         }
     }
+} 
 
-}

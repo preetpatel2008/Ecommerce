@@ -9,7 +9,8 @@ namespace Repository.Services.Contract
 {
     public interface ICartRepositoryService
     {
-        long AddUpdateCart(CartModel objcartModel);
-        Task<List<CartModel>> Selcart();
+        long AddUpdateCartTable(CartModel objcartModel);
+        Task<List<CartModel>> Selcart(int userId);
+        long RemoveCart(int CartID);
     }
 }

@@ -179,6 +179,12 @@ namespace ShoppingCart.Service
             }
 
             //return View(login);
+        } 
+
+        public string GetClaimValue(string  claimType) 
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user?.FindFirst(claimType)?.Value ?? string.Empty;
         }
         public async Task<string> ForgotPassword(string Email)
         {
@@ -366,4 +372,4 @@ namespace ShoppingCart.Service
         }
 
     }
-}
+} 
