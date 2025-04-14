@@ -17,12 +17,12 @@ namespace ShoppingCart.Service
             _cartRepositoryService = CartRepositoryService;
         }
 
-        public async Task<List<CartModel>> GetAllitems()
+        public async Task<List<CartModel>> GetAllitems(int userId)
         {
             try
             {
                 //Get All Products
-                return await _cartRepositoryService.Selcart();
+                return await _cartRepositoryService.Selcart(userId);
 
             }
             catch (Exception ex)
@@ -31,12 +31,28 @@ namespace ShoppingCart.Service
                 return new List<CartModel>();
             }
         }
+
         public async Task<bool> AddUpdateCart(CartModel objcartModel)
         {
             try
             {
                 //User Entry    
-                _cartRepositoryService.AddUpdateCart(objcartModel);
+                _cartRepositoryService.AddUpdateCartTable(objcartModel);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveCart(int cartId)
+        {
+            try
+            {
+                //User Entry    
+                _cartRepositoryService.RemoveCart(cartId);
                 return true;
             }
             catch (Exception ex)

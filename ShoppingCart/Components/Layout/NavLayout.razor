@@ -1,0 +1,128 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using ShoppingCart.Components.Shared
+@using System.Security.Claims
+@inject IJSRuntime JS
+@using ShoppingCart.Components.Pages
+@inject AuthenticationAppService _authenticationAppService
+
+
+<div class="page"> 
+ <div class="sidebar">
+        <nav class="navbar navbar fixed-top navbar-expand-lg navbar-light bg-light p-3">
+    <div class="container-fluid">
+        <!-- Brand Name -->
+        <a class="navbar-brand fw-bold"><i class="bi bi-cart4"></i>ShoppingCart</a>
+
+        <!-- Search Bar -->
+        <form class="d-flex ms-auto me-3" @onsubmit="Search">
+            <input class="form-control me-2" type="search" placeholder="Search products..." bind-value="@SearchQuery">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+                   
+        <!-- Cart -->
+                <CartButtonComponent />
+       
+        <!--About Us -->
+        <a class="btn btn-outline-primary ms-2" href="/about">About Us</a>
+
+        <!-- Profile-->
+        @if (IsUserLoggedIn)
+        {
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" style="margin-left: 10px;" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> Profile
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                    <li class="dropdown-item">
+                        <strong>Welcome, @UserName</strong>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                            <li><a class="dropdown-item" href="/setting">Setting</a></li>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <LogoutComponent />
+                    </li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <a class="btn btn-outline-primary ms-2" href="/auth/login">Login</a>
+        }
+    </div>
+    </nav>
+</div>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private string UserName = "";
+    private string SearchQuery { get; set; } = "";
+    private int CartItemCount { get; set; } = 0;
+    private bool IsUserLoggedIn { get; set; } = false;
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            IsUserLoggedIn = await CheckUserLoginStatus();
+            // Console.WriteLine($"Logged in user: {UserName}"); // check username in console
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Initialization error: " + ex.Message);
+        }
+    }
+
+    private async Task<bool> CheckUserLoginStatus()
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            IsUserLoggedIn = true;
+            UserName = _authenticationAppService.GetClaimValue("FirstName");
+            // UserName = user.FindFirst("FirstName")?.Value
+            //             ?? user.FindFirst(ClaimTypes.Email)?.Value
+            //             ?? "User";// Fetch the username
+            return true;
+            
+                    
+        }
+        else
+        {
+            IsUserLoggedIn = false;
+            return false;
+        } 
+    }
+
+    private void Search()
+    {
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            Navigation.NavigateTo($"/search?query={SearchQuery}");
+        }
+    }
+    private async Task Setting()
+    {
+
+        Navigation.NavigateTo("/setting", forceLoad: true);
+    }
+
+}
+ 
