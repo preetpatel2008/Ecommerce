@@ -7,6 +7,7 @@ namespace Repository.Services.Context
 {
     public class AppDbContext : DbContext
     {
+
     
         public AppDbContext(string ConnectionStringName) : base(ConnectionStringName)
         {   

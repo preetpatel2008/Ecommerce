@@ -115,3 +115,65 @@ h1:focus {
 .footer .social-icon:hover {
     color: white;
 }
+
+/*ToastMessage*/
+
+.toast-message {
+    position: fixed;
+    top: 10px;
+    left:50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Profile Page*/
+
+.profile-card {
+    max-width: 500px;
+    margin: 6rem auto;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+    .profile-card h3 {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #343a40;
+    }
+
+.profile-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.profile-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: #007bff;
+}
+
+.profile-label {
+    font-weight: bold;
+    min-width: 130px;
+}

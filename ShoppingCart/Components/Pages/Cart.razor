@@ -5,7 +5,11 @@
 @layout NavLayout
 @inject CartService _cartService
 @inject NavigationManager Navigation 
+@inject AuthenticationAppService _authenticationAppService
 @rendermode InteractiveServer 
+@inject MessageService _messageService
+
+
 
 
 <h3>Your Cart</h3>
@@ -16,7 +20,9 @@
 }
 else
 { 
-    <table class="table mt-4" >
+    <div class="cart-container p-4 mt-5" style="border: 2px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: #fff;">
+      
+        <table class="table mt-4" >
         <thead>
             <tr>
                 <th>Image</th>
@@ -26,7 +32,7 @@ else
                 <th>Total</th> 
                 <th style="text-align:center;">Actions</th>
             </tr>
-        </thead>
+        </thead> 
         <tbody>
             @foreach (CartModel objcart in lstcartModel)
             {
@@ -50,29 +56,35 @@ else
              }
         </tbody>
     </table>
-   
+
+    
     <div class="d-flex justify-content-between align-items-center mt-4">
         <h4>Total Amount: ₹@lstcartModel.Sum(x => x.Price * x.Quantity)</h4>
-        <button class="btn btn-success btn-sm" @onclick="() => BuyNow()" style="margin-right:101px">Place Order </button>
+        <button class="btn btn-success btn-sm" @onclick="() => PlaceOrder()" style="margin-right:101px">Place Order </button>
     </div>
+</div>
 }
+
 
 @code {
         
     private List<CartModel>? lstcartModel = new List<CartModel>();
     private CartModel objcartModel = new CartModel();
 
-    private int GetLoginMasterId(ClaimsPrincipal user)
-    {
-        var claim = user.FindFirst("LoginMasterID");
-        return claim != null ? int.Parse(claim.Value) : 0;
-    }
+    private string? successMessage;
+    private bool showSuccessMessage = false;
+
+    // private int GetLoginMasterId(ClaimsPrincipal user)
+    // {
+    //     var claim = user.FindFirst("LoginMasterID");
+    //     return claim != null ? int.Parse(claim.Value) : 0;
+    // }
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        int userId = GetLoginMasterId(user);
+        // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // var user = authState.User;
+        int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
         lstcartModel = await _cartService.GetAllitems(userId);
         await LoadCart();
     }
@@ -102,20 +114,33 @@ else
    
     private async Task RemoveFromCart(int cartId)
     {
-        await _cartService.RemoveCart(cartId);
+        await _cartService.RemoveCart(cartId,null);
 
         var itemToRemove = lstcartModel.FirstOrDefault(x => x.CartId == cartId);
         if (itemToRemove != null)
         {
             lstcartModel.Remove(itemToRemove);
         }
-
-        StateHasChanged(); 
+        _cartService.NotifyCartChanged();
+        _messageService.ShowMessage("Product Removed From Cart", "success");
     }
-
-    private void BuyNow()
+     
+    private void PlaceOrder()
     {
+        if (lstcartModel == null || !lstcartModel.Any())
+        {
+            _messageService.ShowMessage("Your cart is empty. Please add products before placing an order.", "error");
+           // JS.InvokeVoidAsync("alert", "Your cart is empty. Please add products before placing an order.");
+            return;
+        }
         Console.WriteLine("BuyNow button clicked!");
-        Navigation.NavigateTo("/orders", forceLoad: true);
+        decimal totalPrice = lstcartModel.Sum(x => (decimal)(x.Price * x.Quantity));
+        int totalProducts = lstcartModel.Sum(x => x.Quantity);
+                
+        Navigation.NavigateTo($"/orders?totalAmount={totalPrice}&totalProducts={totalProducts}", forceLoad: false);
+        
     }
 }
+
+
+<ToastMessageComponent />   

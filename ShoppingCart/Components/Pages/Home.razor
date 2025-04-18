@@ -6,14 +6,17 @@
 @inject NavigationManager Navigation
 @inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticationAppService _authenticationAppService
 @inject ProductService _productService
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @rendermode InteractiveServer
-@inject IJSRuntime JS
 @inject CartService _cartService
-    
+@inject MessageService _messageService
+
+
 <PageTitle>ShoppingCart</PageTitle> 
+
 
 <!--middle Container-->
 <div class = "hero-section">
@@ -25,8 +28,9 @@
         <a href="/home" class="btn btn-dark btn-lg">Shop Now</a>
     </div>
 </div> 
-    
+
 <!--Product Section-->
+
 @if (lstproductModel == null)
 {
     <p>Loading...</p>
@@ -34,7 +38,7 @@
 else
 { 
     <div class="row" style="margin-top:10px">
-
+       
         @foreach (ProductModel objproduct in lstproductModel)
         {
             <div class="col-md-4 mb-4">
@@ -61,7 +65,7 @@ else
 
 
     </div>
-}
+} 
 
 <!--Footer-->
 <FooterComponent /> 
@@ -73,6 +77,10 @@ else
     private string SearchQuery { get; set; } = "";
     private int CartItemCount { get; set; } = 0;
     private bool IsUserLoggedIn { get; set; } = false;
+    private bool showSuccessMessage = false;
+    private string successMessage = string.Empty;
+    private bool _hasInitialized = false;
+
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
@@ -80,53 +88,89 @@ else
     private List<ProductModel>? lstproductModel = new List<ProductModel>();
     private CartModel objcartModel = new CartModel();
 
-    protected override async Task OnInitializedAsync()
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     try
+    //     {
+
+    //         lstproductModel = await _productService.GetAllProducts();
+    //         StateHasChanged();
+    //         // IsUserLoggedIn = await CheckUserLoginStatus();
+
+    //     }
+    //     catch(Exception ex)
+    //     {
+    //         Console.WriteLine("Initialization error: " + ex.Message);
+    //     }
+    // }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender && !_hasInitialized)
         {
+            _hasInitialized = true;
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            IsUserLoggedIn = user.Identity?.IsAuthenticated ?? false;
+
             lstproductModel = await _productService.GetAllProducts();
-            // IsUserLoggedIn = await CheckUserLoginStatus();
-            
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine("Initialization error: " + ex.Message);
+
+            StateHasChanged(); 
         }
     }
-    
-    private int GetLoginMasterId(ClaimsPrincipal user)
-    {
-        var claim = user.FindFirst("LoginMasterID");
-        return claim != null ? int.Parse(claim.Value) : 0;
-    }
+    // -------------
+    // private int GetLoginMasterId(ClaimsPrincipal user)
+    // {
+    //     var claim = user.FindFirst("LoginMasterID");
+    //     return claim != null ? int.Parse(claim.Value) : 0;
+    // }
 
     private async Task AddToCart(ProductModel objproductModel)
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        int userId = GetLoginMasterId(user);
 
-        if (user.Identity.IsAuthenticated)  
+        if (user.Identity.IsAuthenticated)      
         {
-            CartModel objcartModel = new CartModel();
-            objcartModel.UserId = userId;
-            objcartModel.ProductId = objproductModel.ProductId;
-            objcartModel.ProductName = objproductModel.ProductName;
-            objcartModel.Price = objproductModel.Price;
-            objcartModel.ImageUrl = objproductModel.ImageUrl;
-            objcartModel.Quantity = 1;
-            Console.WriteLine(" added to cart!");
-            _cartService.AddUpdateCart(objcartModel);
-            CartItemCount++;
+            int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+
+            var cartItems = await _cartService.GetAllitems(userId);
+            bool productExists = cartItems.Any(item => item.ProductId == objproductModel.ProductId);
+            if (productExists)
+            {
+                _messageService.ShowMessage("Product is already in your cart!", "error");
+            }
+            else
+            {
+                CartModel objcartModel = new CartModel();
+                // objcartModel.UserId = Convert.ToInt32(user.FindFirst("LoginMasterID"));
+                //  objcartModel.UserId = int.TryParse(user?.FindFirst("LoginMasterID")?.Value, out int id) ? id : 0;
+                objcartModel.UserId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+                objcartModel.ProductId = objproductModel.ProductId;
+                objcartModel.ProductName = objproductModel.ProductName;
+                objcartModel.Price = objproductModel.Price;
+                objcartModel.ImageUrl = objproductModel.ImageUrl;
+                objcartModel.Quantity = 1;
+                await  _cartService.AddUpdateCart(objcartModel);
+                _cartService.NotifyCartChanged();
+              
+
+                _messageService.ShowMessage("Product successfully added to your cart!", "success");
+            }
+            
         }
         else
         {
             
-            await JS.InvokeVoidAsync("alert", "To add products to your cart please login!");
+           // await JS.InvokeVoidAsync("alert", "To add products to your cart please login!");
+            _messageService.ShowMessage(" Please login to add products to your cart!", "error");
         }
+
         // Example of getting UserId from claim
         //var userId = int.Parse(user.FindFirst(c => c.Type == "LoginMasterId")?.Value ?? "0");
        
     }
 
 }
+<ToastMessageComponent />   

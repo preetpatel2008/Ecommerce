@@ -12,6 +12,7 @@ using static ShoppingCart.Service.AuthenticationAppService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Repository.Services.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using Blazored.Toast;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,9 +39,11 @@ builder.Services.AddAuthentication();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.ConfigureRepoServiceImplementation(builder.Configuration);
+
+
 builder.Services.AddScoped<ISecurityRepositoryService, SecurityRepositoryService>();
 builder.Services.AddScoped<AuthenticationAppService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -52,6 +55,19 @@ builder.Services.AddScoped<IProductRepositoryService, ProductRepositoryService>(
 
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<ICartRepositoryService, CartRepositoryService>();
+
+builder.Services.AddScoped<OrdersService>();
+builder.Services.AddScoped<IOrdersRepositoryService, OrdersRepositoryService>();
+
+builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<IProfileRepositoryService, ProfileRepositoryService>();
+
+builder.Services.AddScoped<MessageService>();
+
+
+
+// builder.Services.AddScoped<AuthenticationAppService, AuthenticationAppService>();
+
 
 
 var app = builder.Build();
@@ -92,5 +108,6 @@ app.MapGet("/auth/logout", async (HttpContext httpContext) =>
     // Redirect to the login page
     httpContext.Response.Redirect("/home");
 });
+
 
 app.Run();
