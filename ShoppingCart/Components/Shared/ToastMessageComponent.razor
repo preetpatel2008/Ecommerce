@@ -1,0 +1,46 @@
+﻿@inject MessageService MessageService
+
+@if (showMessage)
+{
+    <div class="toast-message alert alert-@messageType">
+        @message
+    </div>
+}
+
+@code {
+    private string message;
+    private string messageType;
+    private bool showMessage = false;
+    private Timer? timer;
+
+    protected override void OnInitialized()
+    {
+        MessageService.OnMessageChanged += ShowMessage;
+    }
+
+    private void ShowMessage()
+    {
+        (message, messageType) = MessageService.GetMessage();
+        showMessage = true;
+
+        // Auto-hide after 3 seconds
+        timer?.Dispose();
+        timer = new Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                showMessage = false;
+                MessageService.Clear();
+                StateHasChanged();
+            });
+        }, null, 3000, Timeout.Infinite);
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        MessageService.OnMessageChanged -= ShowMessage;
+        timer?.Dispose();
+    }
+}

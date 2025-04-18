@@ -6,8 +6,14 @@ using Repository.Services.Library;
 
 namespace ShoppingCart.Service
 {
+    
     public class CartService
     {
+        public event Action? OnChange;
+        public void NotifyCartChanged()
+        {
+            OnChange?.Invoke();
+        }
 
         private readonly AppDbContext _context;
         private readonly ICartRepositoryService _cartRepositoryService;
@@ -16,6 +22,7 @@ namespace ShoppingCart.Service
             _context = context;
             _cartRepositoryService = CartRepositoryService;
         }
+
 
         public async Task<List<CartModel>> GetAllitems(int userId)
         {
@@ -37,7 +44,7 @@ namespace ShoppingCart.Service
             try
             {
                 //User Entry    
-                _cartRepositoryService.AddUpdateCartTable(objcartModel);
+                _cartRepositoryService.AddUpdateCart(objcartModel);
                 return true;
             }
             catch (Exception ex)
@@ -45,14 +52,14 @@ namespace ShoppingCart.Service
                 Console.WriteLine($"Error: {ex.Message}");
                 return false;
             }
-        }
+        } 
 
-        public async Task<bool> RemoveCart(int cartId)
+        public async Task<bool> RemoveCart(int? CartId, int? UserId)
         {
             try
             {
                 //User Entry    
-                _cartRepositoryService.RemoveCart(cartId);
+                _cartRepositoryService.RemoveCart(CartId,UserId);
                 return true;
             }
             catch (Exception ex)

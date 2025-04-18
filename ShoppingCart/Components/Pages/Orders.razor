@@ -1,7 +1,104 @@
 ﻿@page "/orders"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.ComponentModel.DataAnnotations;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@layout NavLayout
+@inject OrdersService _ordersService 
+@inject CartService _cartService
+@inject AuthenticationAppService _authenticationAppService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject CartService _cartService
 
-<h3>Orders</h3>
+<h3>Place Orders</h3>
+
+<div class="p-4 mt-5" style="border: 1px solid #ccc; border-radius: 10px; background-color: #f8f9fa;">
+    <EditForm Model="orderModel" method="post" OnValidSubmit="@PlaceOrder" FormName="@OrdersForm" data-enhance>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <InputText class="form-control" @bind-Value="orderModel.Name" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mobile Number</label>
+            <InputText class="form-control" @bind-Value="orderModel.MobileNumber" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Payment Method</label>
+            <InputSelect class="form-control" @bind-Value="orderModel.PaymentMethod">
+                <option value="">-- Select --</option>
+                <option value="cashOnDelivery">Cash on Delivery</option>
+                <option value="onlinePayment">Online Payment</option>
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Address</label>
+            <InputTextArea class="form-control" @bind-Value="orderModel.Address" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Total Products</label>
+            <InputNumber  class="form-control"  @bind-Value="orderModel.TotalProducts" readonly/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Total Price</label>
+            <InputNumber @bind-Value="orderModel.TotalPrice" TValue="decimal" class="form-control" readonly />
+
+        </div>
+
+        <button class="btn btn-success">PayNow</button>
+    </EditForm> 
+</div> 
 
 @code {
+    private string UserName = "";
+    private OrdersModel orderModel = new OrdersModel();
+    private const string OrdersForm = "order-form";
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "totalAmount")]
+    public decimal totalAmount { get; set; }
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "totalProducts")]
+    public int totalProducts { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        // CartModel objcartModel = new CartModel();
+        // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // var user = authState.User;
+
+        UserName = _authenticationAppService.GetClaimValue("FirstName");
+        orderModel.Name = UserName;
+        orderModel.TotalProducts = totalProducts;
+        orderModel.TotalPrice = totalAmount;
+    }   
+
+    private async Task PlaceOrder()
+    {
+
+
+        bool Success = await _ordersService.AddUpdateOrders(orderModel);
+
+        if (Success)
+        {
+            int UserId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+            // pass SP for delete products after placed orders 
+            await _cartService.RemoveCart(null,UserId);
+            Navigation.NavigateTo("/paymentSuccess");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Something went wrong while placing the order.");
+        }
+
+        
+    }
 }

@@ -21,7 +21,7 @@ namespace Repository.Services.Library
         {
             this.context = context;
         }
-        public long AddUpdateCartTable(CartModel objcartModel)
+        public long AddUpdateCart(CartModel objcartModel)
         {
             try
             {
@@ -51,9 +51,17 @@ namespace Repository.Services.Library
         {
             return await context.Database.SqlQuery<CartModel>("EXEC [sel_Cart] @UserId = {0}",userId).ToListAsync();
         }
-        public long RemoveCart(int CartID)
+
+        public long RemoveCart(int? CartID, int? UserId)
         {
-            return context.Database.ExecuteSqlCommand("EXEC [del_Cart] @CartID={0}", CartID);
+            var parameters = new[]
+            {
+                new SqlParameter("@CartId", (object)CartID ?? DBNull.Value),
+                new SqlParameter("@UserId", (object)UserId ?? DBNull.Value)
+            };
+            return context.Database.ExecuteSqlCommand(
+            "EXEC [del_Cart] @CartId, @UserId", parameters);
+
         }
     }
 } 

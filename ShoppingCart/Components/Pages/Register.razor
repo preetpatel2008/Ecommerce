@@ -43,11 +43,11 @@
                     <ValidationMessage For="@(() => registerModel.Email)" />
                 </div>
 
-                <div class="form-group">
+                @* <div class="form-group">
                     <label>Mobile Number</label>
                     <InputText class="form-control" @bind-Value="registerModel.Mobile" />
                     <ValidationMessage For="@(() => registerModel.Mobile)" />
-                </div>
+                </div> *@
 
                 <div class="form-group">
                     <label>Password</label>
@@ -104,23 +104,7 @@
         } 
        
 
-
-
-
         var user = new IdentityUser { UserName = registerModel.Email, Email = registerModel.Email };
-        // var result = await UserService.AddUser(registerModel);
-        
-
-
-        // if (result)
-        // {
-        //     await JS.InvokeVoidAsync("alert", "Registered successfully. Please login.");
-        //     Navigation.NavigateTo("/login");
-        // }
-        // else
-        // {
-        //     ErrorMessage = "Registration failed. Try again.";
-        // }
       
         await UserService.AddUpdateUser(registerModel);
         await JS.InvokeVoidAsync("alert", "Registered successfully. Please login.");

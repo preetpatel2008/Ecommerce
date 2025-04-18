@@ -3,20 +3,47 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JS
 @rendermode InteractiveServer
-
+@inject MessageService _messageService 
+@inject AuthenticationAppService _authenticationAppService
+@inject CartService _cartService
 
 <button type="button" class="btn btn-outline-primary position-relative" @onclick="GoToCart">
     <i class="bi bi-cart"></i>
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-         @CartItemCount 
+        @CartItemCount 
     </span>
 </button>
 
 @code {
-    private int CartItemCount { get; set; } = 0;
+    private long CartItemCount { get; set; } = 0;
+    private List<CartModel>? lstcartModel = new List<CartModel>();
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        _cartService.OnChange += async () => await RefreshCartCount();
+        await RefreshCartCount();
+    }
+
+    private async Task RefreshCartCount()
+    {
+        string? userIdStr = _authenticationAppService.GetClaimValue("LoginMasterId");
+
+        if (int.TryParse(userIdStr, out int userId))
+        {
+            lstcartModel = await _cartService.GetAllitems(userId);
+            CartItemCount = lstcartModel?.Count ?? 0;
+        }
+        else
+        {
+            CartItemCount = 0; 
+        }
+
+        StateHasChanged();
+    }
+
     private async Task GoToCart()
     {
-
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -26,8 +53,9 @@
         }
         else
         {
-            // Show alert
-            await JS.InvokeVoidAsync("alert", "Please login to use the cart.");
+           
+            // await JS.InvokeVoidAsync("alert", "Please login to use the cart.");
+            _messageService.ShowMessage("Please login to use the cart.", "error");
         }
     }
-}
+} 

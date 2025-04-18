@@ -9,6 +9,7 @@
 @inject AuthenticationAppService _authenticationAppService
 
 
+
 <div class="page"> 
  <div class="sidebar">
         <nav class="navbar navbar fixed-top navbar-expand-lg navbar-light bg-light p-3">
@@ -28,12 +29,12 @@
         <!--About Us -->
         <a class="btn btn-outline-primary ms-2" href="/about">About Us</a>
 
-        <!-- Profile-->
+        <!-- Setting-->
         @if (IsUserLoggedIn)
         {
             <div class="dropdown">
                 <button class="btn btn-outline-primary dropdown-toggle" style="margin-left: 10px;" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> Profile
+                    <i class="bi bi-person-circle"></i>  @UserName
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                     <li class="dropdown-item">
@@ -41,12 +42,13 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                            <li><a class="dropdown-item" href="/setting">Setting</a></li>
+                            <li><a class="dropdown-item" href="/profile" >
+                                <i class="bi bi-person-fill"></i>My Profile</a></li>
                     </li>
 
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <LogoutComponent />
+                        <LogoutComponent /> 
                     </li>
                 </ul>
             </div>
