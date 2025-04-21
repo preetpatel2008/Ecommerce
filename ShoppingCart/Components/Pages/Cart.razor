@@ -135,9 +135,10 @@ else
         }
         Console.WriteLine("BuyNow button clicked!");
         decimal totalPrice = lstcartModel.Sum(x => (decimal)(x.Price * x.Quantity));
-        int totalProducts = lstcartModel.Sum(x => x.Quantity);
-                
-        Navigation.NavigateTo($"/orders?totalAmount={totalPrice}&totalProducts={totalProducts}", forceLoad: false);
+        //int totalProducts = lstcartModel.Sum(x => x.Quantity);
+        string totalProductInfo = string.Join(", ", lstcartModel.Select(item => $"{item.Quantity}*{item.ProductName}"));
+        
+        Navigation.NavigateTo($"/orders?totalAmount={totalPrice}&totalProducts={totalProductInfo}", forceLoad: false);
         
     }
 }

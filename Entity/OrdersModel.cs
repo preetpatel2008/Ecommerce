@@ -20,7 +20,7 @@ namespace Entity
         public string? PaymentMethod { get; set; }
         [Required(ErrorMessage = "Address is required.")]
         public string? Address { get; set; }
-        public int TotalProducts { get; set; }
+        public string? TotalProducts { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime PlacedOn { get; set; }
         public string? PaymentStatus { get; set; }

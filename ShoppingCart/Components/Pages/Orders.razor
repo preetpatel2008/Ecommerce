@@ -5,7 +5,6 @@
 @using System.Security.Claims
 @layout NavLayout
 @inject OrdersService _ordersService 
-@inject CartService _cartService
 @inject AuthenticationAppService _authenticationAppService
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
@@ -17,16 +16,18 @@
 <div class="p-4 mt-5" style="border: 1px solid #ccc; border-radius: 10px; background-color: #f8f9fa;">
     <EditForm Model="orderModel" method="post" OnValidSubmit="@PlaceOrder" FormName="@OrdersForm" data-enhance>
         <DataAnnotationsValidator />
-        <ValidationSummary />
+       
 
         <div class="mb-3">
             <label class="form-label">Name</label>
             <InputText class="form-control" @bind-Value="orderModel.Name" readonly />
+          
         </div>
 
         <div class="mb-3">
             <label class="form-label">Mobile Number</label>
             <InputText class="form-control" @bind-Value="orderModel.MobileNumber" />
+            <ValidationMessage For="@(() => orderModel.MobileNumber)" />
         </div>
 
         <div class="mb-3">
@@ -36,16 +37,20 @@
                 <option value="cashOnDelivery">Cash on Delivery</option>
                 <option value="onlinePayment">Online Payment</option>
             </InputSelect>
+            <ValidationMessage For="@(() => orderModel.PaymentMethod)" />
+           
         </div>
 
         <div class="mb-3">
             <label class="form-label">Address</label>
             <InputTextArea class="form-control" @bind-Value="orderModel.Address" />
+            <ValidationMessage For="@(() => orderModel.Address)" />
+            
         </div>
 
         <div class="mb-3">
             <label class="form-label">Total Products</label>
-            <InputNumber  class="form-control"  @bind-Value="orderModel.TotalProducts" readonly/>
+            <InputText  class="form-control"  @bind-Value="orderModel.TotalProducts" readonly/>
         </div>
 
         <div class="mb-3">
@@ -67,7 +72,7 @@
     public decimal totalAmount { get; set; }
     [Parameter]
     [SupplyParameterFromQuery(Name = "totalProducts")]
-    public int totalProducts { get; set; }
+    public string totalProducts { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
