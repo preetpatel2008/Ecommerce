@@ -88,37 +88,37 @@ else
     private List<ProductModel>? lstproductModel = new List<ProductModel>();
     private CartModel objcartModel = new CartModel();
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     try
-    //     {
-
-    //         lstproductModel = await _productService.GetAllProducts();
-    //         StateHasChanged();
-    //         // IsUserLoggedIn = await CheckUserLoginStatus();
-
-    //     }
-    //     catch(Exception ex)
-    //     {
-    //         Console.WriteLine("Initialization error: " + ex.Message);
-    //     }
-    // }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender && !_hasInitialized)
+        try
         {
-            _hasInitialized = true;
-
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            IsUserLoggedIn = user.Identity?.IsAuthenticated ?? false;
 
             lstproductModel = await _productService.GetAllProducts();
+            StateHasChanged();
+            // IsUserLoggedIn = await CheckUserLoginStatus();
 
-            StateHasChanged(); 
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine("Initialization error: " + ex.Message);
         }
     }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender && !_hasInitialized)
+    //     {
+    //         _hasInitialized = true;
+
+    //         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //         var user = authState.User;
+
+    //         IsUserLoggedIn = user.Identity?.IsAuthenticated ?? false;
+
+    //         lstproductModel = await _productService.GetAllProducts();
+
+    //         StateHasChanged(); 
+    //     }
+    // }
     // -------------
     // private int GetLoginMasterId(ClaimsPrincipal user)
     // {
