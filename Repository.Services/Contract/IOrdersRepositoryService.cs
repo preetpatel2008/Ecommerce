@@ -10,5 +10,6 @@ namespace Repository.Services.Contract
     public interface IOrdersRepositoryService
     {
         long AddUpdateOrders(OrdersModel objordersModel);
+        Task<List<OrderDetailsModel>> SelOrders(int userId);
     }
 }
