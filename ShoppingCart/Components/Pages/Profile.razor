@@ -82,25 +82,26 @@ else
     private bool _hasInitialized = false;
 
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     UserName = _authenticationAppService.GetClaimValue("FirstName");
-    //     var loginMasterId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
-    //     objprofileModel = await _profileService.GetUserProfile(loginMasterId);
-    // }
-    protected override async Task OnAfterRenderAsync(bool firstRender) 
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender && !_hasInitialized)
-        {
-            UserName = _authenticationAppService.GetClaimValue("FirstName");
-            _hasInitialized = true;
+        UserName = _authenticationAppService.GetClaimValue("FirstName");
+        var loginMasterId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+        objprofileModel = await _profileService.GetUserProfile(loginMasterId);
+    }
 
-            var loginMasterId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
-            objprofileModel = await _profileService.GetUserProfile(loginMasterId);
+    // protected override async Task OnAfterRenderAsync(bool firstRender) 
+    // {
+    //     if (firstRender && !_hasInitialized)
+    //     {
+    //         UserName = _authenticationAppService.GetClaimValue("FirstName");
+    //         _hasInitialized = true;
 
-            StateHasChanged();
-        }
-    } 
+    //         var loginMasterId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+    //         objprofileModel = await _profileService.GetUserProfile(loginMasterId);
+
+    //         StateHasChanged();
+    //     }
+    // } 
                      
     private void EnableEditing()
     {
