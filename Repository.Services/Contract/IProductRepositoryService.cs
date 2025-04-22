@@ -7,6 +7,7 @@ namespace Repository.Services.Contract
     {
         Task<long> AddUpdateProductTableAsync(ProductModel productModel, IFormFile imageFile);
         Task<List<ProductModel>> Selproduct();
-
+        long RemoveProduct(int? ProductId);
+        Task<bool> UpdateProductDetails(ProductModel objproductModel);
     }
 }

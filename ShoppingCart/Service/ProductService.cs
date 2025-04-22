@@ -46,5 +46,33 @@ namespace ShoppingCart.Service
             }
         }
 
+        public async Task<bool> RemoveProduct(int? ProductId)
+        {
+            try
+            {
+                //User Entry    
+                _productRepositoryService.RemoveProduct(ProductId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateProductDetails(ProductModel objproductModel)
+        {
+            try
+            {
+                //User Entry    
+                return await _productRepositoryService.UpdateProductDetails(objproductModel);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
