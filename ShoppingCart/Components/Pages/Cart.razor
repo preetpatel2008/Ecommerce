@@ -14,62 +14,67 @@
 
 <h3>Your Cart</h3>
 
-@if (lstcartModel == null)
+@if (lstcartModel == null || !lstcartModel.Any())
 {
-    <p>Loading...</p>
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
 }
 else
 { 
     <div class="cart-container p-4 mt-5" style="border: 2px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: #fff;">
-      
-        <table class="table mt-4" >
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th> 
-                <th style="text-align:center;">Actions</th>
-            </tr>
-        </thead> 
-        <tbody>
-            @foreach (CartModel objcart in lstcartModel)
-            {
-                <tr @key="objcart.CartId">
-                    <td><img src="@objcart.ImageUrl" width="60" height="60" /></td>
-                    <td>@objcart.ProductName</td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-secondary btn-sm" @onclick="() => DecreaseQuantity(objcart)">-</button>
-                            <span>@objcart.Quantity</span>
-                            <button class="btn btn-secondary btn-sm" @onclick="() => IncreaseQuantity(objcart)">+</button>
-                        </div>
-                    </td>
-                    <td>₹@objcart.Price</td>
-                    <td>₹@(objcart.Price * objcart.Quantity)</td>
-                    <td style="text-align:center;">
-                       
-                        <button class="btn btn-danger btn-sm" @onclick="() => RemoveFromCart(objcart.CartId)">Remove</button>
-                    </td>
-                </tr>
-             }
-        </tbody>
-    </table>
 
-    
-    <div class="d-flex justify-content-between align-items-center mt-4">
-        <h4>Total Amount: ₹@lstcartModel.Sum(x => x.Price * x.Quantity)</h4>
-        <button class="btn btn-success btn-sm" @onclick="() => PlaceOrder()" style="margin-right:101px">Place Order </button>
+        <table class="table mt-4" >
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th> 
+                    <th style="text-align:center;">Actions</th>
+                </tr>
+            </thead> 
+            <tbody>
+                @foreach (CartModel objcart in lstcartModel)
+                {
+                    <tr @key="objcart.CartId">
+                        <td><img src="@objcart.ImageUrl" width="60" height="60" /></td>
+                        <td>@objcart.ProductName</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-secondary btn-sm" @onclick="() => DecreaseQuantity(objcart)">-</button>
+                                <span>@objcart.Quantity</span>
+                                <button class="btn btn-secondary btn-sm" @onclick="() => IncreaseQuantity(objcart)">+</button>
+                            </div>
+                        </td>
+                        <td>₹@objcart.Price</td>
+                        <td>₹@(objcart.Price * objcart.Quantity)</td>
+                        <td style="text-align:center;">
+
+                            <button class="btn btn-danger btn-sm" @onclick="() => RemoveFromCart(objcart.CartId)">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <h4>Total Amount: ₹@lstcartModel.Sum(x => x.Price * x.Quantity)</h4>
+            <button class="btn btn-success btn-sm" @onclick="() => PlaceOrder()" style="margin-right:101px">Place Order </button>
+        </div>
     </div>
-</div>
 }
 
 
 @code {
-        
+
     private List<CartModel>? lstcartModel = new List<CartModel>();
     private CartModel objcartModel = new CartModel();
+    private bool IsUserLoggedIn { get; set; } = false;
+    private string? successMessage;
+    private bool showSuccessMessage = false;
 
     // private int GetLoginMasterId(ClaimsPrincipal user)
     // {
@@ -81,7 +86,8 @@ else
     {
         // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         // var user = authState.User;
-        int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId")); 
+        await Task.Delay(500);
+        int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
         lstcartModel = await _cartService.GetAllitems(userId);
         await LoadCart();
     }
