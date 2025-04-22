@@ -49,5 +49,10 @@ namespace Repository.Services.Library
             }
 
         }
+
+        public async Task<List<OrderDetailsModel>> SelOrders(int userId)
+        {
+            return await context.Database.SqlQuery<OrderDetailsModel>("EXEC [sel_UserOrders] @UserId = {0}", userId).ToListAsync();
+        }
     }
 }

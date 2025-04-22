@@ -42,6 +42,20 @@ namespace ShoppingCart.Service
                 return false;
             }
         }
+        public async Task<List<OrderDetailsModel>> GetAllOrders(int userId)
+        {
+            try
+            {
+                //Get All Orders
+                return await _ordersRepositoryService.SelOrders(userId);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new List<OrderDetailsModel>();
+            }
+        }
     }
       
     }

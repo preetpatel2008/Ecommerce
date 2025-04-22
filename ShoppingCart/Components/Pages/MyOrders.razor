@@ -1,0 +1,58 @@
+﻿@page "/myorders"
+@layout NavLayout
+@inject OrdersService _ordersService
+@inject NavigationManager Navigation
+@inject AuthenticationAppService _authenticationAppService
+
+
+<h3 class="mb-4">My Orders</h3>
+@if (lstorderDetailsModel == null)
+{
+    <div class="alert alert-info">Loading...</div>
+}
+else if (!lstorderDetailsModel.Any())   
+{
+    <div class="alert alert-warning">No orders found.</div>
+}
+else
+{
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white fw-bold">My Orders</div>
+        <div class="card-body">
+        <table class="table table-hover align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">No.</th> 
+                    <th scope="col">Products</th>
+                    <th scope="col">Total Price</th>
+                    <th scope="col">Order Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (OrderDetailsModel objorder in lstorderDetailsModel)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td class="fw-medium">@objorder.ProductDetails</td>
+                        <td class="text-success fw-semibold">₹@objorder.TotalPrice</td>
+                        <td>@objorder.OrderDate.ToString("dd-MMM-yyyy")</td>
+                    </tr>
+                    index++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+}
+@code {
+    private List<OrderDetailsModel>? lstorderDetailsModel = new List<OrderDetailsModel>();
+    int index = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+        lstorderDetailsModel = await _ordersService.GetAllOrders(userId);
+        
+    }
+}
