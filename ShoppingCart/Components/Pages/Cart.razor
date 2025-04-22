@@ -71,9 +71,6 @@ else
     private List<CartModel>? lstcartModel = new List<CartModel>();
     private CartModel objcartModel = new CartModel();
 
-    private string? successMessage;
-    private bool showSuccessMessage = false;
-
     // private int GetLoginMasterId(ClaimsPrincipal user)
     // {
     //     var claim = user.FindFirst("LoginMasterID");
@@ -84,7 +81,7 @@ else
     {
         // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         // var user = authState.User;
-        int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
+        int userId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId")); 
         lstcartModel = await _cartService.GetAllitems(userId);
         await LoadCart();
     }

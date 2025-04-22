@@ -8,8 +8,8 @@
 @inject AuthenticationStateProvider _authenticationStateProvider
 
 
-    <div class="profile-card">
-<h3><i class="bi bi-person-circle"></i>@UserName's Profile</h3>
+ <div class="profile-card">
+  <h3><i class="bi bi-person-circle"></i>@UserName's Profile</h3>
 
 @if (objprofileModel == null)
 {
@@ -79,7 +79,7 @@ else
     private string UserName  = "";
     private ProfileModel objprofileModel;
     private bool isEditing = false;
-    private bool _hasInitialized = false;
+   
 
 
     protected override async Task OnInitializedAsync()
@@ -89,19 +89,6 @@ else
         objprofileModel = await _profileService.GetUserProfile(loginMasterId);
     }
 
-    // protected override async Task OnAfterRenderAsync(bool firstRender) 
-    // {
-    //     if (firstRender && !_hasInitialized)
-    //     {
-    //         UserName = _authenticationAppService.GetClaimValue("FirstName");
-    //         _hasInitialized = true;
-
-    //         var loginMasterId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
-    //         objprofileModel = await _profileService.GetUserProfile(loginMasterId);
-
-    //         StateHasChanged();
-    //     }
-    // } 
                      
     private void EnableEditing()
     {

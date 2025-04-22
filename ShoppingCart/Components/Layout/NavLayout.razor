@@ -79,10 +79,9 @@
 
 @code {
     private string UserName = "";
-    private string SearchQuery { get; set; } = "";
+    private string SearchQuery { get; set; } 
     private int CartItemCount { get; set; } = 0;
     private bool IsUserLoggedIn { get; set; } = false;
-    [Inject] public NavigationManager NavigationManager { get; set; }
     protected override async Task OnInitializedAsync()
     {
         try
@@ -122,18 +121,15 @@
         } 
     }
 
-    private void Search()
+    private async Task Search()
     {
         if (!string.IsNullOrWhiteSpace(SearchQuery))
         {
-            Navigation.NavigateTo($"/search?query={SearchQuery}");
+            // Navigation.NavigateTo($"/search?query={SearchQuery}");
+            Navigation.NavigateTo($"/search?query={Uri.EscapeDataString(SearchQuery)}");
         }
     }
-    private async Task Setting()
-    {
-
-        Navigation.NavigateTo("/setting", forceLoad: true);
-    }
+  
 
 }
  

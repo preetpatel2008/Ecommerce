@@ -64,5 +64,46 @@ namespace Repository.Services.Library
         {
             return await context.Database.SqlQuery<ProductModel>("EXEC [sel_Product]").ToListAsync();
         }
+
+        public long RemoveProduct(int? ProductId)
+        {
+            try
+            {
+                List<SqlParameter> parms = new List<SqlParameter>();
+                parms.Add(new SqlParameter("@pProductId", UtilityFunctions.DBNullToDB(ProductId)));
+                return context.Database.ExecuteSqlCommand("EXEC [del_Product] @ProductId=@pProductId", parms.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> UpdateProductDetails(ProductModel objproductModel)
+        {
+            try
+            {
+                var productIdReturnParam = new SqlParameter("@ProductIdReturn", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                var parameters = new[]
+                {
+                    new SqlParameter("@ProductId", objproductModel.ProductId),
+                    new SqlParameter("@ProductName", objproductModel.ProductName),
+                    new SqlParameter("@Price", objproductModel.Price),
+                    new SqlParameter("@ImageUrl", objproductModel.ImageUrl),
+                    productIdReturnParam
+                };
+
+                await context.Database.ExecuteSqlCommandAsync("EXEC [ins_upd_Product] @ProductId, @ProductName, @Price, @ImageUrl,@ProductIdReturn OUTPUT", parameters);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("UpdateUserProfile Error: " + ex.Message);
+                return false;
+            }
+        }
     }
 }
