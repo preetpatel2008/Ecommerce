@@ -8,15 +8,18 @@
 @inject AuthenticationStateProvider _authenticationStateProvider
 
 
- <div class="profile-card">
-  <h3><i class="bi bi-person-circle"></i>@UserName's Profile</h3>
 
-@if (objprofileModel == null)
-{
-    <p class="text-center">Loading...</p>
-}
-else
-{
+<div class="profile-card">
+    <h3><i class="bi bi-person-circle"></i>@UserName's Profile</h3>
+
+    @if (objprofileModel == null)
+    {
+        <div class="loader-container">
+            <div class="loader"></div>
+        </div>
+    }
+    else
+    {
         @if (!isEditing)
         {
             <div class="profile-item">
@@ -70,25 +73,25 @@ else
             <button class="btn btn-success me-2" @onclick="SaveProfile">Save</button>
             <button class="btn btn-secondary" @onclick="CancelEditing">Cancel</button>
 
-        }
-    
+        }    
     }
-    </div>
- 
+</div>
+
 @code {
     private string UserName  = "";
     private ProfileModel objprofileModel;
     private bool isEditing = false;
-   
-
+    private bool _hasInitialized = false;
+    private bool IsUserLoggedIn { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
+        IsUserLoggedIn = true;
+        await Task.Delay(500);
         UserName = _authenticationAppService.GetClaimValue("FirstName");
         var loginMasterId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
         objprofileModel = await _profileService.GetUserProfile(loginMasterId);
     }
-
                      
     private void EnableEditing()
     {

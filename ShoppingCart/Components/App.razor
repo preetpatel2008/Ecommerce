@@ -24,7 +24,8 @@
     <CascadingAuthenticationState>
         <Router AppAssembly="@typeof(Program).Assembly">
             <Found Context="routeData">
-                <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(ShoppingCart.Components.Layout.MainLayout)" />
+                @* <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" /> *@
             </Found>
             <NotFound>
                 <h3>Page not found!</h3>
