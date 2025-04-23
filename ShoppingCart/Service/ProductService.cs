@@ -16,18 +16,17 @@ namespace ShoppingCart.Service
             _context = context;
             _productRepositoryService = ProductRepositoryService;
         }
-        public async Task<List<ProductModel>> GetAllProducts()
+        public async Task<(List<ProductModel> Data, int TotalCount)> GetAllProducts(long startIndex, long endIndex)
         {
             try
             {
                 //Get All Products
-                return  await _productRepositoryService.Selproduct();
-             
+                return  await _productRepositoryService.Selproduct(startIndex, endIndex);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
-                return new List<ProductModel>();
+                return (new List<ProductModel>(), 0);
             }
         }
 

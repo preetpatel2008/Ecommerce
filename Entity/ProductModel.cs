@@ -22,6 +22,7 @@ namespace Entity
 
         [Required]
         public IBrowserFile? ImageFile { get; set; }
+        public int TotalRecordCount { get; set; }
 
     }
 }

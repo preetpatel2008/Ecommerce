@@ -1,0 +1,69 @@
+﻿<div class="d-flex justify-content-center mt-3">
+    <!-- Previous Button -->
+    <button class="btn btn-outline-secondary me-2"
+            @onclick="() => GoToPage(CurrentPage - 1)"
+            disabled="@(CurrentPage == 1)">
+        ‹
+    </button>
+
+    @foreach (var pageNumber in GetPageNumbers())
+    {
+        <button class="btn @(CurrentPage == pageNumber ? "btn-primary" : "btn-outline-primary") me-1"
+                @onclick="() => GoToPage(pageNumber)">
+            @pageNumber
+        </button>
+    }
+
+    <button class="btn btn-outline-secondary ms-2"
+            @onclick="() => GoToPage(CurrentPage + 1)"
+            disabled="@(CurrentPage == TotalPages)">
+        ›
+    </button>
+</div>
+
+@code {
+
+    PaginationModel objpaginationModel = new PaginationModel();
+    [Parameter] public int TotalPages { get; set; }
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+    // Method to navigate to a specific page
+    private async Task GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages && page != CurrentPage)
+        {
+            CurrentPage = page;
+            await OnPageChanged.InvokeAsync(page);
+        }
+    }
+
+    // Method to generate page numbers
+    private IEnumerable<int> GetPageNumbers()
+    {
+        var pageNumbers = new List<int>();
+        pageNumbers.Add(1);
+
+        if (CurrentPage > 2)
+        {
+            pageNumbers.Add(CurrentPage - 1);
+        }
+
+        pageNumbers.Add(CurrentPage);
+
+        if (CurrentPage < TotalPages - 1)
+        {
+            pageNumbers.Add(CurrentPage + 1);
+        }
+
+        if (TotalPages > 1)
+        {
+            pageNumbers.Add(TotalPages);
+        }
+
+        return pageNumbers.Distinct();
+    }
+}
+
+
+

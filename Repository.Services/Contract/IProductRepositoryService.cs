@@ -6,7 +6,7 @@ namespace Repository.Services.Contract
     public interface IProductRepositoryService
     {
         Task<long> AddUpdateProductTableAsync(ProductModel productModel, IFormFile imageFile);
-        Task<List<ProductModel>> Selproduct();
+        Task<(List<ProductModel> Data, int TotalCount)> Selproduct(long startIndex, long endIndex);
 
     }
 }

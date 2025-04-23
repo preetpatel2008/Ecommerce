@@ -3,13 +3,13 @@
 @layout NavLayout 
 @using ShoppingCart.Components
 @using ShoppingCart.Components.Shared
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @inject NavigationManager Navigation
 @inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject AuthenticationAppService _authenticationAppService
 @inject ProductService _productService
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
 @rendermode InteractiveServer
 @inject CartService _cartService
 @inject MessageService _messageService
@@ -19,25 +19,26 @@
 
 <ToastMessageComponent />
 <!--middle Container-->
-@if (lstproductModel == null || !lstproductModel.Any())
+@if (isLoading)
 {
     <div class="loader-container">
-        <div class="loader"></div>
+        <div class="spinner-border" role="status">
+        </div>
     </div>
 }
 else
 {
-<div class = "hero-section">
-    <img src="images/clothes.jpg" alt="hero" class="hero-image">
-    <div class="hero-overlay">
-        <h2 class="text-danger">ShoppingCart Sale</h2>
-        <h1 class="fw-bold">Minimal Fashion Style</h1>
-        <p>Exclusive discounts on the latest fashion trends.</p>
-        <a href="/home" class="btn btn-dark btn-lg">Shop Now</a>
-    </div>
-</div> 
+    <div class = "hero-section">
+        <img src="images/clothes.jpg" alt="hero" class="hero-image">
+        <div class="hero-overlay">
+            <h2 class="text-danger">ShoppingCart Sale</h2>
+            <h1 class="fw-bold">Minimal Fashion Style</h1>
+            <p>Exclusive discounts on the latest fashion trends.</p>
+            <a href="/home" class="btn btn-dark btn-lg">Shop Now</a>
+        </div>
+    </div> 
 
-<!--Product Section-->
+    <!--Product Section-->
 
     <div class="row" style="margin-top:10px">
 
@@ -53,7 +54,10 @@ else
                     </div>
                 </div>
             </div>
-        } 
+        }
+
+        <PaginationComponent TotalPages="objpaginationModel.TotalPages" CurrentPage="objpaginationModel.CurrentPage" OnPageChanged="GoToPage" />
+
         @*  <div class="col-md-4 mb-4" product>
         <div class="card shadow-sm">
             <img src="/images/product1.jpg" class="card-img-top" alt="Product1-Img">
@@ -68,8 +72,8 @@ else
 
     </div>
 
-<!--Footer-->
-<FooterComponent /> 
+    <!--Footer-->
+    <FooterComponent /> 
 }
 @code {
 
@@ -78,11 +82,12 @@ else
     private CartModel objcartModel = new CartModel();
     private string SearchQuery { get; set; } = "";
     private int CartItemCount { get; set; } = 0;
-    private bool IsUserLoggedIn { get; set; } = false;
+    private bool isLoading = false;
     private bool showSuccessMessage = false;
     private string successMessage = string.Empty;
     // private bool _hasInitialized = false;
     private bool _hasLoadedProducts = false;
+    private PaginationModel objpaginationModel = new PaginationModel();
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
@@ -91,9 +96,19 @@ else
     {
         try
         {
-            IsUserLoggedIn = true;
+            isLoading = true;
             await Task.Delay(500);
-            lstproductModel = await _productService.GetAllProducts();
+            //lstproductModel = await _productService.GetAllProducts();
+            lstproductModel = (await _productService.GetAllProducts(1, int.MaxValue)).Data.ToList();
+            if (objpaginationModel.PageSize == 0)
+            {
+                objpaginationModel.PageSize = lstproductModel.Count <= 6 ? lstproductModel.Count : 6;
+            }
+            objpaginationModel.TotalPages = (int)Math.Ceiling((double)lstproductModel.Count / objpaginationModel.PageSize);
+            if (objpaginationModel.CurrentPage <= 0 || objpaginationModel.CurrentPage > objpaginationModel.TotalPages)
+                objpaginationModel.CurrentPage = 1;
+            lstproductModel = lstproductModel.Skip((objpaginationModel.CurrentPage - 1) * objpaginationModel.PageSize).Take(objpaginationModel.PageSize).ToList();
+            isLoading = false;
             StateHasChanged();
         }
         catch(Exception ex)
@@ -145,6 +160,14 @@ else
         else
         {
             _messageService.ShowMessage(" Please login to add products to your cart!", "error");
+        }
+    }
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber >= 1 && pageNumber <= objpaginationModel.TotalPages)
+        {
+            objpaginationModel.CurrentPage = pageNumber;
+            
         }
     }
 }
