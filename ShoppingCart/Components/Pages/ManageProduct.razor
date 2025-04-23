@@ -1,0 +1,144 @@
+﻿@page "/admin/manageproduct"
+@inject ProductService _productService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject MessageService _messageService
+
+<h3>Product Management</h3>
+
+@if (lstproductModel == null)
+{
+    <p>Loading...</p>
+}
+else if (!lstproductModel.Any())
+{
+    <p>No products available.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var objproduct in lstproductModel)
+            {
+                <tr>
+                    @if (editingProductId == objproduct.ProductId)
+                    {
+                        <td>
+                            <InputText class="form-control" @bind-Value="objproduct.ProductName" />
+                        </td>
+                        <td>
+                            <InputNumber class="form-control" @bind-Value="objproduct.Price" />
+                        </td>
+                        <td>
+                            <InputFile OnChange="@(e => OnImageSelected(e, objproduct))" accept="image/*" />
+                            @if (!string.IsNullOrEmpty(objproduct.ImageUrl))
+                            {
+                                <img src="@objproduct.ImageUrl" alt="Product Image" width="40" class="mt-2" />
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-success me-2" @onclick="() => SaveProduct(objproduct)">Save</button>
+                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>@objproduct.ProductName</td>
+                        <td>@objproduct.Price</td>
+                        <td>
+                            <img src="@objproduct.ImageUrl" alt="Product Image" width="40" />
+                        </td>
+                        <td>
+                            <button class="btn btn-primary me-2" @onclick="() => EnableEditing(objproduct.ProductId)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => RemoveProduct(objproduct.ProductId)">Remove</button>
+                        </td> 
+                    }
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ProductModel>? lstproductModel = new List<ProductModel>();
+    private int? editingProductId = null;
+
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
+
+    private async Task LoadProducts()
+    {
+        lstproductModel = await _productService.GetAllProducts();
+    }
+
+    private void EnableEditing(int ProductId)
+    {
+        editingProductId = ProductId;
+    }
+
+    private async Task RemoveProduct(int productId)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this product?");
+        if (confirmed)
+        {
+            await _productService.RemoveProduct(productId);
+            await LoadProducts(); 
+            _messageService.ShowMessage("Product removed successfully!", "success");
+
+        }
+    }
+
+    
+    private async Task OnImageSelected(InputFileChangeEventArgs e, ProductModel product)
+    {
+        var maxFileSize = 1024 * 1024 * 15; // 15 MB
+        var file = e.File;
+
+        if (file.Size > maxFileSize)
+        {
+            // Handle file size error
+            return;
+        }
+
+        var uniqueFileName = $"{Guid.NewGuid()}_{file.Name}";
+        var uploadPath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images");
+        Directory.CreateDirectory(uploadPath);
+        var filePath = Path.Combine(uploadPath, uniqueFileName);
+
+        await using var fs = new FileStream(filePath, FileMode.Create);
+        await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+
+        // Set the ImageUrl to the relative path
+        product.ImageUrl = $"/images/{uniqueFileName}";
+    }
+
+    private async Task SaveProduct(ProductModel objproduct)
+    {
+        await _productService.UpdateProductDetails(objproduct);
+        editingProductId = null;
+        await LoadProducts(); 
+        _messageService.ShowMessage("Product edited successfully!", "success");
+    }
+
+    private void CancelEdit()
+    {
+        editingProductId = null;
+        // Optionally, reload the product list to discard changes
+    }
+
+}
+<ToastMessageComponent />

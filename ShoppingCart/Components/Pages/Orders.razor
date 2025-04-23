@@ -59,7 +59,7 @@
 
         </div>
 
-        <button class="btn btn-success">PayNow</button>
+        <button class="btn btn-success">Place Order </button>
     </EditForm> 
 </div> 
 
@@ -95,7 +95,7 @@
         if (Success)
         {
             int UserId = Convert.ToInt32(_authenticationAppService.GetClaimValue("LoginMasterId"));
-            // pass SP for delete products after placed orders 
+            // passed SP for delete products after placed orders 
             await _cartService.RemoveCart(null,UserId);
             Navigation.NavigateTo("/paymentSuccess");
         }
