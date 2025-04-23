@@ -94,27 +94,25 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        await LoadProducts();
+    }
+
+    async Task LoadProducts()
+    {
+        isLoading = true;
+        await Task.Delay(500);
+        //lstproductModel = await _productService.GetAllProducts();
+        lstproductModel = (await _productService.GetAllProducts(1, int.MaxValue)).Data.ToList();
+        if (objpaginationModel.PageSize == 0)
         {
-            isLoading = true;
-            await Task.Delay(500);
-            //lstproductModel = await _productService.GetAllProducts();
-            lstproductModel = (await _productService.GetAllProducts(1, int.MaxValue)).Data.ToList();
-            if (objpaginationModel.PageSize == 0)
-            {
-                objpaginationModel.PageSize = lstproductModel.Count <= 6 ? lstproductModel.Count : 6;
-            }
-            objpaginationModel.TotalPages = (int)Math.Ceiling((double)lstproductModel.Count / objpaginationModel.PageSize);
-            if (objpaginationModel.CurrentPage <= 0 || objpaginationModel.CurrentPage > objpaginationModel.TotalPages)
-                objpaginationModel.CurrentPage = 1;
-            lstproductModel = lstproductModel.Skip((objpaginationModel.CurrentPage - 1) * objpaginationModel.PageSize).Take(objpaginationModel.PageSize).ToList();
-            isLoading = false;
-            StateHasChanged();
+            objpaginationModel.PageSize = lstproductModel.Count <= 6 ? lstproductModel.Count : 6;
         }
-        catch(Exception ex)
-        {
-            Console.WriteLine("Initialization error: " + ex.Message);
-        }
+        objpaginationModel.TotalPages = (int)Math.Ceiling((double)lstproductModel.Count / objpaginationModel.PageSize);
+        if (objpaginationModel.CurrentPage <= 0 || objpaginationModel.CurrentPage > objpaginationModel.TotalPages)
+            objpaginationModel.CurrentPage = 1;
+        lstproductModel = lstproductModel.Skip((objpaginationModel.CurrentPage - 1) * objpaginationModel.PageSize).Take(objpaginationModel.PageSize).ToList();
+        isLoading = false;
+        StateHasChanged();
     }
 
     
@@ -162,13 +160,18 @@ else
             _messageService.ShowMessage(" Please login to add products to your cart!", "error");
         }
     }
-    private void GoToPage(int pageNumber)
+    private async void GoToPage(int pageNumber)
     {
+        // if (pageNumber >= 1 && pageNumber <= objpaginationModel.TotalPages)
+        // {
+        //     objpaginationModel.CurrentPage = pageNumber;
+            
+        // }
         if (pageNumber >= 1 && pageNumber <= objpaginationModel.TotalPages)
         {
             objpaginationModel.CurrentPage = pageNumber;
-            
+            await LoadProducts();
         }
-    }
+    }  
 }
-  
+ 

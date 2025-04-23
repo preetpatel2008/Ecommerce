@@ -73,7 +73,7 @@ else
     private List<ProductModel>? lstproductModel = new List<ProductModel>();
     private int? editingProductId = null;
 
-   
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,7 +82,7 @@ else
 
     private async Task LoadProducts()
     {
-        lstproductModel = await _productService.GetAllProducts();
+        lstproductModel = (await _productService.GetAllProducts(1, int.MaxValue)).Data.ToList();
     }
 
     private void EnableEditing(int ProductId)
