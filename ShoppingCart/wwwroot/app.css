@@ -179,7 +179,13 @@ h1:focus {
 }
 
 /* Loader css */
-@-webkit-keyframes spin {
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 100px;
+}
+/*@-webkit-keyframes spin {
     0% {
         -webkit-transform: rotate(0deg);
     }
@@ -209,12 +215,7 @@ h1:focus {
     animation: spin 2s linear infinite;
 }
 
-.loader-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top:100px;
-}
+
 
 .loadingio-spinner-rolling-nq4q5u6dq7r {
     position: fixed;
@@ -269,3 +270,4 @@ h1:focus {
     background: none !important;
     border: none !important;
 }
+*/

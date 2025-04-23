@@ -1,14 +1,17 @@
 ﻿using Repository.Services.Context;
 using Repository.Services.Contract;
 using Entity;
-using System.Data.SqlClient;
+//using System.Data.SqlClient;
 using System.Data;
 using Repository.Services.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+//using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace Repository.Services.Library
-{   
+{
     public class ProductRepositoryService : IProductRepositoryService
     {
         private readonly AppDbContext context;
@@ -20,7 +23,7 @@ namespace Repository.Services.Library
             this.env = env;
         }
 
-        public async Task<long> AddUpdateProductTableAsync(ProductModel productModel, IFormFile imageFile)
+        public async Task<long> AddUpdateProductTableAsync(ProductModel objProductModel, IFormFile imageFile)
         {
             try
             {
@@ -35,23 +38,34 @@ namespace Repository.Services.Library
                     {
                         await imageFile.CopyToAsync(stream);
                     }
-                        
-                    productModel.ImageUrl = "/images/" + uniqueFileName;
+
+                    objProductModel.ImageUrl = "/images/" + uniqueFileName;
                 }
 
-                List<SqlParameter> parms = new List<SqlParameter>();
-           
-                    parms.Add(new SqlParameter("@pProductId", UtilityFunctions.DBNullToDB(productModel.ProductId)));
-                    parms.Add(new SqlParameter("@pProductName", UtilityFunctions.DBNullToDB(productModel.ProductName)));
-                    parms.Add (new SqlParameter("@pPrice", productModel.Price));
-                    parms.Add (new SqlParameter("@pImageUrl", UtilityFunctions.DBNullToDB(productModel.ImageUrl)));
-             
+                List<SqlParameter> paramObject = new List<SqlParameter>();
+                SqlParameter pProductId = new SqlParameter("@pProductId", UtilityFunctions.DBNullToDB(objProductModel.ProductId));
+                SqlParameter pProductName = new SqlParameter("@pProductName", UtilityFunctions.DBNullToDB(objProductModel.ProductName));
+                SqlParameter pPrice = new SqlParameter("@pPrice", UtilityFunctions.DBNullToDB(objProductModel.Price));
+                SqlParameter pImageUrl = new SqlParameter("@pImageUrl", UtilityFunctions.DBNullToDB(objProductModel.ImageUrl));
 
-                SqlParameter pProductIdReturn = new SqlParameter("@pProductIdReturn", SqlDbType.Int) { Value = Convert.ToInt64(0), Direction = ParameterDirection.InputOutput };
-                parms.Add(pProductIdReturn);
+                SqlParameter pProductIdReturn = new SqlParameter("@pProductIdReturn", SqlDbType.BigInt)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                //SqlParameter pProductIdReturn = new SqlParameter("@pProductIdReturn", SqlDbType.Int) { Value = Convert.ToInt64(0), Direction = ParameterDirection.InputOutput };
+                //paramObject.Add(pProductIdReturn);
+
+                #region Parms Add to list
+                paramObject.Add(pProductId);
+                paramObject.Add(pProductName);
+                paramObject.Add(pPrice);
+                paramObject.Add(pImageUrl);
+                paramObject.Add(pProductIdReturn);
+
+                #endregion
 
                 context.Database.ExecuteSqlCommand("EXEC dbo.[ins_upd_Product] @ProductId=@pProductId, @ProductName=@pProductName, @Price=@pPrice, @ImageUrl=@pImageUrl, @ProductIdReturn=@pProductIdReturn OUTPUT",
-                   parms.ToArray());
+                   paramObject.ToArray());
 
                 return Convert.ToInt64(pProductIdReturn.Value);
             }
@@ -60,9 +74,29 @@ namespace Repository.Services.Library
                 throw;
             }
         }
-        public async Task<List<ProductModel>> Selproduct()
+        //public async Task<List<ProductModel>> Selproduct()
+        //{
+        //    return await context.Database.SqlQuery<ProductModel>("EXEC [sel_Product]").ToListAsync();
+        //}
+
+        public async Task<(List<ProductModel> Data, int TotalCount)> Selproduct(long startIndex, long endIndex)
         {
-            return await context.Database.SqlQuery<ProductModel>("EXEC [sel_Product]").ToListAsync();
+            try
+            {
+                var result = await context.Database
+                    .SqlQuery<ProductModel>("EXEC sel_Product @RecordStartIndex, @RecordEndIndex",
+                        new SqlParameter("@RecordStartIndex", startIndex),
+                        new SqlParameter("@RecordEndIndex", endIndex))
+                    .ToListAsync();
+
+                int totalCount = result.Any() ? result.First().TotalRecordCount : 0;
+
+                return (result, totalCount);
+            }
+            catch (Exception ex) 
+            {
+                throw;
+            }
         }
 
         public long RemoveProduct(int? ProductId)
