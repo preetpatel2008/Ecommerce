@@ -26,7 +26,7 @@ else
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody> 
             @foreach (var objproduct in lstproductModel)
             {
                 <tr>
@@ -68,11 +68,12 @@ else
         </tbody>
     </table>
 }
+  <PaginationComponent TotalPages="objpaginationModel.TotalPages" CurrentPage="objpaginationModel.CurrentPage" OnPageChanged="GoToPage" />
 
 @code {
     private List<ProductModel>? lstproductModel = new List<ProductModel>();
     private int? editingProductId = null;
-
+    private PaginationModel objpaginationModel = new PaginationModel();
 
 
     protected override async Task OnInitializedAsync()
@@ -82,7 +83,19 @@ else
 
     private async Task LoadProducts()
     {
+      
+        //lstproductModel = await _productService.GetAllProducts();
         lstproductModel = (await _productService.GetAllProducts(1, int.MaxValue)).Data.ToList();
+        if (objpaginationModel.PageSize == 0)
+        {
+            objpaginationModel.PageSize = lstproductModel.Count <= 6 ? lstproductModel.Count : 6;
+        }
+        objpaginationModel.TotalPages = (int)Math.Ceiling((double)lstproductModel.Count / objpaginationModel.PageSize);
+        if (objpaginationModel.CurrentPage <= 0 || objpaginationModel.CurrentPage > objpaginationModel.TotalPages)
+            objpaginationModel.CurrentPage = 1;
+        lstproductModel = lstproductModel.Skip((objpaginationModel.CurrentPage - 1) * objpaginationModel.PageSize).Take(objpaginationModel.PageSize).ToList();
+        
+        StateHasChanged();
     }
 
     private void EnableEditing(int ProductId)
@@ -138,6 +151,15 @@ else
     {
         editingProductId = null;
         // Optionally, reload the product list to discard changes
+    }
+
+    private async void GoToPage(int pageNumber)
+    {
+        if (pageNumber >= 1 && pageNumber <= objpaginationModel.TotalPages)
+        {
+            objpaginationModel.CurrentPage = pageNumber;
+            await LoadProducts();
+        }
     }
 
 }

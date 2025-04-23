@@ -138,7 +138,7 @@ else
 
 		var itemToRemove = lstcartModel.FirstOrDefault(x => x.CartId == cartId);
 		if (itemToRemove != null)
-		{
+		{	
 			lstcartModel.Remove(itemToRemove);
 		}
 		_cartService.NotifyCartChanged();
@@ -155,7 +155,6 @@ else
 		}
 		Console.WriteLine("BuyNow button clicked!");
 		decimal totalPrice = lstcartModel.Sum(x => (decimal)(x.Price * x.Quantity));
-		//int totalProducts = lstcartModel.Sum(x => x.Quantity);
 		string totalProductInfo = string.Join(", ", lstcartModel.Select(item => $"{item.Quantity}*{item.ProductName}"));
 
 		Navigation.NavigateTo($"/orders?totalAmount={totalPrice}&totalProducts={totalProductInfo}", forceLoad: false);

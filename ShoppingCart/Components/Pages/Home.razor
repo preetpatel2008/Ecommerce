@@ -71,9 +71,11 @@ else
     </div> *@
 
 }
+
+
     
 
-    <!--Footer-->
+ <!--Footer-->
     <FooterComponent /> 
 
 @code {
@@ -110,7 +112,7 @@ else
         }
         objpaginationModel.TotalPages = (int)Math.Ceiling((double)lstproductModel.Count / objpaginationModel.PageSize);
         if (objpaginationModel.CurrentPage <= 0 || objpaginationModel.CurrentPage > objpaginationModel.TotalPages)
-            objpaginationModel.CurrentPage = 1;
+        objpaginationModel.CurrentPage = 1;
         lstproductModel = lstproductModel.Skip((objpaginationModel.CurrentPage - 1) * objpaginationModel.PageSize).Take(objpaginationModel.PageSize).ToList();
         isLoading = false;
         StateHasChanged();
